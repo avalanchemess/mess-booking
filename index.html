@@ -1,1219 +1,734 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Saurabh Weds Hrutuja</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#13343B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mess Booking">
+<title>Avalanche Officers' Mess Booking Portal</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2313343B'/%3E%3Cpath d='M8 46 24 22l8 11 7-9 17 22z' fill='%23F3F6F8'/%3E%3Ccircle cx='47' cy='17' r='5' fill='%23C8962E'/%3E%3C/svg%3E">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --deep-red: #8B0000;
-    --gold: #C9A84C;
-    --light-gold: #F0D080;
-    --blush: #F5C6C6;
-    --rose: #D4547A;
-    --cream: #FFF8F0;
-    --dark: #1A0A0A;
-    --mauve: #9B5B6B;
-  }
-
-  html { scroll-behavior: smooth; }
-
-  body {
-    font-family: 'Cormorant Garamond', serif;
-    background: var(--dark);
-    overflow-x: hidden;
-    cursor: default;
-  }
-
-  /* ─── CURTAIN ─── */
-  #curtain-container {
-    position: fixed;
-    inset: 0;
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    pointer-events: all;
-  }
-
-  .curtain {
-    position: absolute;
-    top: 0;
-    width: 50%;
-    height: 100%;
-    background: linear-gradient(135deg, #6B0000 0%, #A00000 40%, #C00000 60%, #8B0000 100%);
-    transition: transform 1.4s cubic-bezier(0.77, 0, 0.18, 1);
-    overflow: hidden;
-  }
-
-  .curtain-left { left: 0; transform-origin: left center; }
-  .curtain-right { right: 0; transform-origin: right center; }
-
-  .curtain::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: repeating-linear-gradient(
-      90deg,
-      transparent, transparent 18px,
-      rgba(0,0,0,0.15) 18px, rgba(0,0,0,0.15) 20px
-    );
-  }
-
-  .curtain::after {
-    content: '';
-    position: absolute;
-    top: 0; bottom: 0;
-    width: 30px;
-    background: linear-gradient(90deg, rgba(0,0,0,0.3), transparent);
-  }
-
-  .curtain-left::after { right: 0; }
-  .curtain-right::after { left: 0; background: linear-gradient(270deg, rgba(0,0,0,0.3), transparent); }
-
-  /* Curtain folds */
-  .fold {
-    position: absolute;
-    top: 0; bottom: 0;
-    width: 4px;
-    background: rgba(0,0,0,0.2);
-    border-radius: 2px;
-  }
-
-  /* Curtain top rod */
-  .curtain-rod {
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 18px;
-    background: linear-gradient(180deg, #8B6914, #C9A84C, #8B6914);
-    z-index: 5;
-    border-radius: 0 0 4px 4px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-  }
-
-  /* Tassel */
-  .tassel {
-    position: absolute;
-    top: 18px;
-    width: 16px;
-    background: linear-gradient(180deg, #C9A84C, #8B6914);
-    border-radius: 8px 8px 0 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .tassel-strings {
-    display: flex;
-    gap: 2px;
-    margin-top: 2px;
-  }
-
-  .tassel-string {
-    width: 2px;
-    height: 28px;
-    background: linear-gradient(180deg, #C9A84C, #F0D080);
-    border-radius: 1px;
-    animation: sway 2s ease-in-out infinite alternate;
-  }
-
-  .tassel-string:nth-child(2) { animation-delay: 0.2s; }
-  .tassel-string:nth-child(3) { animation-delay: 0.4s; }
-
-  @keyframes sway {
-    0% { transform: rotate(-3deg); }
-    100% { transform: rotate(3deg); }
-  }
-
-  .curtain-tap-hint {
-    position: absolute;
-    bottom: 15%;
-    left: 50%;
-    transform: translateX(-50%);
-    color: var(--light-gold);
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 15px;
-    font-style: italic;
-    letter-spacing: 2px;
-    text-align: center;
-    animation: pulse 2s ease-in-out infinite;
-    z-index: 10;
-    pointer-events: none;
-    text-shadow: 0 0 20px rgba(201,168,76,0.8);
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 0.5; transform: translateX(-50%) scale(0.97); }
-    50% { opacity: 1; transform: translateX(-50%) scale(1.03); }
-  }
-
-  .curtain-center-ornament {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 10;
-    color: var(--light-gold);
-    font-size: 52px;
-    animation: heartbeat 1.5s ease-in-out infinite;
-    text-shadow: 0 0 30px rgba(201,168,76,0.6);
-  }
-
-  @keyframes heartbeat {
-    0%, 100% { transform: translate(-50%,-50%) scale(1); }
-    14% { transform: translate(-50%,-50%) scale(1.15); }
-    28% { transform: translate(-50%,-50%) scale(1); }
-    42% { transform: translate(-50%,-50%) scale(1.1); }
-    56% { transform: translate(-50%,-50%) scale(1); }
-  }
-
-  .opened .curtain-left { transform: translateX(-100%); }
-  .opened .curtain-right { transform: translateX(100%); }
-  .opened #curtain-container { pointer-events: none; }
-
-  /* ─── PAGES / DECKS ─── */
-  .page {
-    min-height: 100vh;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
-  }
-
-  /* ─── PAGE 1: HERO ─── */
-  #page-hero {
-    background: linear-gradient(160deg, #0D0005 0%, #1A0010 30%, #200818 60%, #120008 100%);
-    padding: 60px 24px;
-    min-height: 100vh;
-  }
-
-  /* Floating petals */
-  .petal {
-    position: absolute;
-    font-size: 20px;
-    animation: floatPetal linear infinite;
-    opacity: 0.7;
-    pointer-events: none;
-  }
-
-  @keyframes floatPetal {
-    0% { transform: translateY(-50px) rotate(0deg); opacity: 0; }
-    10% { opacity: 0.8; }
-    90% { opacity: 0.6; }
-    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
-  }
-
-  /* Corner flourishes */
-  .corner-flourish {
-    position: absolute;
-    font-size: 40px;
-    opacity: 0.35;
-    color: var(--gold);
-  }
-  .corner-tl { top: 16px; left: 16px; transform: rotate(0deg); }
-  .corner-tr { top: 16px; right: 16px; transform: rotate(90deg); }
-  .corner-bl { bottom: 16px; left: 16px; transform: rotate(270deg); }
-  .corner-br { bottom: 16px; right: 16px; transform: rotate(180deg); }
-
-  /* Border frame */
-  .hero-frame {
-    position: absolute;
-    inset: 12px;
-    border: 1.5px solid rgba(201,168,76,0.3);
-    border-radius: 4px;
-    pointer-events: none;
-  }
-
-  .hero-frame::before {
-    content: '';
-    position: absolute;
-    inset: 6px;
-    border: 1px solid rgba(201,168,76,0.15);
-    border-radius: 2px;
-  }
-
-  /* The ring of flowers around title */
-  .flower-ring {
-    position: relative;
-    width: 300px;
-    height: 300px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 8px;
-  }
-
-  .flower-ring-item {
-    position: absolute;
-    font-size: 22px;
-    animation: rotateSlow 20s linear infinite;
-    transform-origin: 140px 140px;
-  }
-
-  @keyframes rotateSlow {
-    0% { transform: rotate(var(--start-angle)) translateX(130px) rotate(calc(-1 * var(--start-angle))); }
-    100% { transform: rotate(calc(var(--start-angle) + 360deg)) translateX(130px) rotate(calc(-1 * var(--start-angle) - 360deg)); }
-  }
-
-  .hero-subtitle {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 13px;
-    font-weight: 300;
-    letter-spacing: 6px;
-    text-transform: uppercase;
-    color: var(--gold);
-    text-align: center;
-    margin-bottom: 12px;
-    opacity: 0;
-    animation: fadeUp 1s ease 1.8s forwards;
-  }
-
-  .hero-title {
-    font-family: 'Great Vibes', cursive;
-    font-size: clamp(44px, 14vw, 68px);
-    color: var(--cream);
-    text-align: center;
-    line-height: 1.1;
-    text-shadow:
-      0 0 40px rgba(201,168,76,0.4),
-      0 4px 20px rgba(0,0,0,0.6);
-    opacity: 0;
-    animation: fadeUp 1.2s ease 2s forwards;
-    position: relative;
-    z-index: 2;
-  }
-
-  .hero-title .amp {
-    font-family: 'Great Vibes', cursive;
-    font-size: 0.8em;
-    color: var(--gold);
-    display: block;
-    text-shadow: 0 0 30px rgba(201,168,76,0.8);
-  }
-
-  .hero-divider {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin: 18px auto;
-    width: 260px;
-    opacity: 0;
-    animation: fadeUp 1s ease 2.4s forwards;
-  }
-
-  .hero-divider-line {
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--gold), transparent);
-  }
-
-  .hero-divider-heart {
-    font-size: 18px;
-    color: var(--rose);
-    animation: heartbeat 1.5s ease-in-out infinite;
-  }
-
-  .hero-tagline {
-    font-family: 'Cormorant Garamond', serif;
-    font-style: italic;
-    font-size: 18px;
-    color: rgba(245,198,198,0.85);
-    text-align: center;
-    letter-spacing: 1px;
-    opacity: 0;
-    animation: fadeUp 1s ease 2.6s forwards;
-    max-width: 280px;
-    line-height: 1.6;
-  }
-
-  /* Graffiti elements */
-  .graffiti {
-    position: absolute;
-    font-family: 'Great Vibes', cursive;
-    opacity: 0.12;
-    color: var(--rose);
-    pointer-events: none;
-    animation: driftFloat 8s ease-in-out infinite alternate;
-  }
-
-  @keyframes driftFloat {
-    0% { transform: translateY(0) rotate(var(--rot)); }
-    100% { transform: translateY(-15px) rotate(calc(var(--rot) + 5deg)); }
-  }
-
-  .swipe-hint {
-    position: absolute;
-    bottom: 32px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    color: rgba(201,168,76,0.6);
-    font-size: 12px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    animation: bounceDown 2s ease-in-out infinite;
-    opacity: 0;
-    animation: fadeIn 1s ease 3.5s forwards, bounceDown 2s ease-in-out 4.5s infinite;
-  }
-
-  @keyframes bounceDown {
-    0%, 100% { transform: translateX(-50%) translateY(0); }
-    50% { transform: translateX(-50%) translateY(8px); }
-  }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-
-  /* ─── PAGE 2: DATE SCRATCH ─── */
-  #page-date {
-    background: linear-gradient(160deg, #0A0818 0%, #150D25 40%, #1A0D1A 100%);
-    padding: 60px 24px;
-    gap: 0;
-  }
-
-  .deck {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(201,168,76,0.2);
-    border-radius: 24px;
-    padding: 36px 28px;
-    width: 100%;
-    max-width: 360px;
-    backdrop-filter: blur(12px);
-    box-shadow:
-      0 20px 60px rgba(0,0,0,0.5),
-      inset 0 1px 0 rgba(255,255,255,0.08);
-    animation: deckReveal 0.8s ease forwards;
-  }
-
-  @keyframes deckReveal {
-    from { opacity: 0; transform: translateY(40px) scale(0.96); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
-  }
-
-  .deck-label {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 11px;
-    letter-spacing: 5px;
-    text-transform: uppercase;
-    color: var(--gold);
-    text-align: center;
-    margin-bottom: 24px;
-    opacity: 0.8;
-  }
-
-  .scratch-container {
-    position: relative;
-    width: 100%;
-    border-radius: 16px;
-    overflow: hidden;
-    margin: 0 auto 24px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-    cursor: crosshair;
-  }
-
-  .scratch-reveal {
-    background: linear-gradient(135deg, #150D25, #2A1040);
-    padding: 30px 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    border-radius: 16px;
-  }
-
-  .scratch-reveal-label {
-    font-size: 11px;
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    color: var(--gold);
-    opacity: 0.7;
-  }
-
-  .scratch-reveal-date {
-    font-family: 'Great Vibes', cursive;
-    font-size: 52px;
-    color: var(--light-gold);
-    text-shadow: 0 0 30px rgba(201,168,76,0.6);
-    line-height: 1;
-    text-align: center;
-  }
-
-  .scratch-reveal-sub {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 14px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: rgba(245,198,198,0.7);
-  }
-
-  canvas#scratchCanvas {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%;
-    height: 100%;
-    border-radius: 16px;
-    touch-action: none;
-    transition: opacity 0.5s ease;
-  }
-
-  .scratch-hint {
-    font-family: 'Cormorant Garamond', serif;
-    font-style: italic;
-    font-size: 13px;
-    color: rgba(201,168,76,0.6);
-    text-align: center;
-    margin-bottom: 8px;
-    letter-spacing: 1px;
-  }
-
-  .scratch-cleared {
-    display: none;
-    font-size: 20px;
-    text-align: center;
-    animation: popIn 0.5s ease;
-  }
-
-  @keyframes popIn {
-    0% { transform: scale(0.5); opacity: 0; }
-    70% { transform: scale(1.2); }
-    100% { transform: scale(1); opacity: 1; }
-  }
-
-  /* ─── TIMER ─── */
-  .timer-section {
-    width: 100%;
-    max-width: 360px;
-    margin-top: 24px;
-  }
-
-  .timer-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
-  }
-
-  .timer-unit {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(201,168,76,0.2);
-    border-radius: 16px;
-    padding: 16px 8px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-    transition: transform 0.1s ease;
-  }
-
-  .timer-unit.tick {
-    animation: tickPulse 0.3s ease;
-  }
-
-  @keyframes tickPulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.04); border-color: rgba(201,168,76,0.5); }
-    100% { transform: scale(1); }
-  }
-
-  .timer-number {
-    font-family: 'Playfair Display', serif;
-    font-size: 28px;
-    font-weight: 700;
-    color: var(--light-gold);
-    text-shadow: 0 0 20px rgba(201,168,76,0.5);
-    line-height: 1;
-    min-width: 48px;
-    text-align: center;
-  }
-
-  .timer-label {
-    font-size: 9px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: rgba(201,168,76,0.6);
-  }
-
-  .timer-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-style: italic;
-    font-size: 16px;
-    color: rgba(245,198,198,0.7);
-    text-align: center;
-    margin-bottom: 16px;
-    letter-spacing: 1px;
-  }
-
-  .hearts-divider {
-    text-align: center;
-    font-size: 16px;
-    margin: 20px 0;
-    letter-spacing: 8px;
-    animation: heartsFloat 3s ease-in-out infinite;
-  }
-
-  @keyframes heartsFloat {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-5px); }
-  }
-
-  /* ─── PAGE 3: VENUE ─── */
-  #page-venue {
-    background: linear-gradient(160deg, #0A0A18 0%, #0D1520 50%, #0A0D18 100%);
-    padding: 60px 24px;
-    gap: 20px;
-  }
-
-  .venue-header {
-    font-family: 'Great Vibes', cursive;
-    font-size: 48px;
-    color: var(--light-gold);
-    text-align: center;
-    text-shadow: 0 0 30px rgba(201,168,76,0.4);
-    margin-bottom: 8px;
-  }
-
-  .venue-subheader {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 12px;
-    letter-spacing: 5px;
-    text-transform: uppercase;
-    color: var(--gold);
-    text-align: center;
-    opacity: 0.7;
-    margin-bottom: 32px;
-  }
-
-  .venue-card {
-    width: 100%;
-    max-width: 360px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(201,168,76,0.2);
-    border-radius: 24px;
-    padding: 28px 24px;
-    backdrop-filter: blur(12px);
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .venue-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: linear-gradient(135deg, rgba(201,168,76,0.15), rgba(201,168,76,0.05));
-    border: 1px solid rgba(201,168,76,0.3);
-    border-radius: 30px;
-    padding: 6px 16px;
-    font-size: 10px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--gold);
-    align-self: flex-start;
-  }
-
-  .venue-city {
-    font-family: 'Great Vibes', cursive;
-    font-size: 42px;
-    color: var(--cream);
-    text-shadow: 0 0 20px rgba(255,255,255,0.2);
-    line-height: 1.1;
-  }
-
-  .venue-event-name {
-    font-family: 'Playfair Display', serif;
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--light-gold);
-    letter-spacing: 1px;
-  }
-
-  .venue-detail {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 15px;
-    color: rgba(245,198,198,0.75);
-    line-height: 1.7;
-    font-style: italic;
-  }
-
-  .venue-divider {
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(201,168,76,0.3), transparent);
-    margin: 4px 0;
-  }
-
-  .venue-icon {
-    font-size: 24px;
-  }
-
-  /* Sparkle effect */
-  .sparkle {
-    position: absolute;
-    font-size: 16px;
-    animation: sparkleFly 4s ease-in-out infinite;
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  @keyframes sparkleFly {
-    0% { opacity: 0; transform: scale(0) rotate(0deg); }
-    20% { opacity: 1; transform: scale(1) rotate(180deg); }
-    80% { opacity: 0.8; transform: scale(0.8) rotate(360deg); }
-    100% { opacity: 0; transform: scale(0) rotate(540deg); }
-  }
-
-  /* Starry background */
-  .stars-bg {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    overflow: hidden;
-  }
-
-  .star-dot {
-    position: absolute;
-    border-radius: 50%;
-    background: white;
-    animation: twinkle ease-in-out infinite;
-  }
-
-  @keyframes twinkle {
-    0%, 100% { opacity: 0.1; transform: scale(1); }
-    50% { opacity: 0.9; transform: scale(1.5); }
-  }
-
-  /* Love poem section */
-  .love-poem {
-    width: 100%;
-    max-width: 360px;
-    text-align: center;
-    padding: 0 8px;
-    margin-top: 4px;
-  }
-
-  .love-poem p {
-    font-family: 'Cormorant Garamond', serif;
-    font-style: italic;
-    font-size: 17px;
-    color: rgba(245,198,198,0.65);
-    line-height: 2;
-    letter-spacing: 0.5px;
-  }
-
-  .love-poem .quote-mark {
-    font-family: 'Playfair Display', serif;
-    font-size: 60px;
-    color: rgba(201,168,76,0.25);
-    line-height: 0.5;
-    display: block;
-    margin-bottom: 10px;
-  }
-
-  /* Footer note */
-  .footer-note {
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 11px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: rgba(201,168,76,0.4);
-    text-align: center;
-    white-space: nowrap;
-  }
-
-  /* Animated candles / lamp */
-  .lamp {
-    position: absolute;
-    font-size: 28px;
-    animation: lampFlicker 1.5s ease-in-out infinite alternate;
-  }
-
-  @keyframes lampFlicker {
-    0% { opacity: 0.8; transform: scale(1); filter: brightness(1); }
-    100% { opacity: 1; transform: scale(1.05); filter: brightness(1.2); }
-  }
-
-  /* Section scroll indicator */
-  .scroll-down-arrow {
-    position: absolute;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%);
-    color: rgba(201,168,76,0.4);
-    font-size: 22px;
-    animation: arrowBounce 2s ease-in-out infinite;
-  }
-
-  @keyframes arrowBounce {
-    0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.4; }
-    50% { transform: translateX(-50%) translateY(6px); opacity: 0.8; }
-  }
+:root{
+  --snow:#F3F6F8; --paper:#FFFFFF; --deodar:#13343B; --deodar-2:#1F4D56; --ink:#17262B; --mute:#5A6C72;
+  --line:#D3DEE2; --glacier:#E4EDF0;
+  --booked:#B5362B; --booked-soft:#F6DFDC; --booked-past:#C9A29D;
+  --vacant:#DCEEDA; --vacant-past:#EDF1EE; --vacant-ink:#2A6638;
+  --brass:#C8962E; --brass-tint:#FBF0D6; --brass-ink:#5C430C;
+  --serif:"Iowan Old Style","Palatino Linotype","Book Antiqua",Palatino,Georgia,serif;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans",Arial,sans-serif;
+  --cw:46px; --rh:46px; --rw:88px; --nav-h:62px;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:var(--sans);font-size:16px;line-height:1.45;color:var(--ink);background:var(--snow);-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+[hidden]{display:none!important}
+:focus-visible{outline:3px solid var(--brass);outline-offset:2px}
+h1,h2,h3,p{margin:0}
+
+/* ---------- key fob: the room label ---------- */
+.fob{display:inline-flex;align-items:center;gap:6px;min-width:58px;padding:5px 10px 5px 7px;background:var(--brass-tint);border:1.5px solid var(--brass);border-radius:7px 16px 16px 7px;color:var(--brass-ink);font-weight:700;font-size:14px;letter-spacing:.02em;white-space:nowrap}
+.fob::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--snow);border:1.5px solid var(--brass);flex:none}
+
+/* ---------- sign-in ---------- */
+#login{min-height:100%;display:flex;flex-direction:column;background:var(--deodar);color:#fff}
+.login-side{flex:1;display:flex;flex-direction:column;min-width:0}
+.ridge{display:block;width:100%;height:auto;margin-top:auto}
+.login-top{padding:max(40px,env(safe-area-inset-top)) 24px 8px;max-width:520px;width:100%;margin:0 auto}
+.login-top h1{font-family:var(--serif);font-weight:600;font-size:clamp(32px,9vw,44px);line-height:1.08;letter-spacing:-.01em}
+.login-top p{margin-top:10px;font-size:18px;color:#BFD3D8}
+.login-card{background:var(--snow);color:var(--ink);padding:26px 24px max(28px,env(safe-area-inset-bottom))}
+.login-card form{max-width:472px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+.pw-wrap{position:relative}
+.pw-wrap input{padding-right:74px}
+.pw-wrap button{position:absolute;right:6px;top:6px;bottom:6px;border:0;background:transparent;color:var(--deodar-2);font-weight:600;padding:0 12px;border-radius:8px}
+.check{display:flex;align-items:center;gap:10px;font-size:15px;color:var(--mute)}
+.check input{width:20px;height:20px;accent-color:var(--deodar)}
+.notice{background:var(--brass-tint);border:1px solid var(--brass);color:var(--brass-ink);border-radius:10px;padding:12px 14px;font-size:15px}
+.error{color:var(--booked);font-weight:600;font-size:15px;min-height:1.4em}
+
+/* ---------- form controls ---------- */
+label.f{display:grid;grid-template-columns:minmax(0,1fr);gap:6px;min-width:0;font-size:14px;font-weight:600;color:var(--mute)}
+label.f small{font-weight:400}
+.in{width:100%;min-width:0;max-width:100%;min-height:50px;padding:11px 14px;border:1.5px solid var(--line);border-radius:10px;background:var(--paper);font-size:17px;font-weight:400;color:var(--ink)}
+textarea.in{min-height:76px;resize:vertical}
+input[type=date].in{-webkit-appearance:none;appearance:none;display:block;text-align:left}
+input[type=date].in::-webkit-date-and-time-value{text-align:left}
+.in:focus{border-color:var(--deodar-2);outline:none;box-shadow:0 0 0 3px rgba(31,77,86,.18)}
+.btn{min-height:50px;padding:0 20px;border-radius:10px;border:1.5px solid var(--deodar);background:var(--deodar);color:#fff;font-weight:700;font-size:16px}
+.btn.ghost{background:transparent;color:var(--deodar)}
+.btn.danger{background:transparent;border-color:var(--booked);color:var(--booked)}
+.btn.danger.armed{background:var(--booked);color:#fff}
+.btn:disabled{opacity:.55;cursor:default}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+@media (max-width:349px){.two{grid-template-columns:minmax(0,1fr)}}
+
+/* ---------- app frame ---------- */
+#app{min-height:100%;padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom))}
+.bar{position:sticky;top:0;z-index:30;background:var(--deodar);color:#fff;display:flex;align-items:center;gap:8px;padding:calc(8px + env(safe-area-inset-top)) 8px 8px 16px}
+.bar h1{font-family:var(--serif);font-weight:600;font-size:19px;line-height:1.15;flex:1;min-width:0}
+.bar h1 span{display:block;font-family:var(--sans);font-weight:400;font-size:12.5px;color:#BFD3D8;margin-top:1px}
+.icon-btn{width:44px;height:44px;border:0;border-radius:10px;background:transparent;color:#fff;display:grid;place-items:center}
+.icon-btn:active{background:rgba(255,255,255,.14)}
+.icon-btn svg{width:22px;height:22px}
+.busy .spin{animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:40;height:calc(var(--nav-h) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:var(--paper);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr)}
+.tabs button{border:0;background:transparent;display:grid;place-items:center;align-content:center;gap:2px;font-size:12px;font-weight:600;color:var(--mute)}
+.tabs svg{width:23px;height:23px}
+.tabs button[aria-selected="true"]{color:var(--deodar)}
+.tabs button[aria-selected="true"] svg{stroke-width:2.4}
+.tabs button[aria-selected="true"]::after{content:"";width:22px;height:3px;border-radius:2px;background:var(--brass)}
+
+.fab{position:fixed;right:16px;bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 14px);z-index:35;height:54px;padding:0 20px 0 16px;border:0;border-radius:27px;background:var(--brass);color:#2B1F04;font-weight:700;font-size:16px;display:flex;align-items:center;gap:8px;box-shadow:0 6px 18px rgba(19,52,59,.28)}
+.fab svg{width:20px;height:20px}
+
+main{padding:14px 14px 90px}
+.view-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:2px 2px 12px}
+.view-head h2{font-family:var(--serif);font-size:24px;font-weight:600;line-height:1.15}
+.view-head p{color:var(--mute);font-size:14px}
+.narrow{max-width:720px}
+
+/* ---------- chart ---------- */
+.month-bar{display:flex;align-items:center;gap:6px;margin-bottom:10px}
+.month-bar h2{font-family:var(--serif);font-size:clamp(19px,5.8vw,23px);font-weight:600;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.step{width:44px;height:44px;border:1.5px solid var(--line);border-radius:10px;background:var(--paper);display:grid;place-items:center}
+.step svg{width:20px;height:20px}
+.pill{height:44px;padding:0 14px;border:1.5px solid var(--line);border-radius:10px;background:var(--paper);font-weight:600;font-size:14px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:var(--mute);margin:0 2px 10px}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:4px;margin-right:6px;vertical-align:-2px}
+.chart-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -14px;padding:0 14px 6px 0;scrollbar-width:thin}
+table.chart{border-collapse:separate;border-spacing:2px;table-layout:fixed;width:calc(var(--rw) + var(--days) * (var(--cw) + 2px));min-width:100%}
+.chart col.room{width:var(--rw)}
+.chart th,.chart td{height:var(--rh);padding:0;text-align:center}
+.chart thead th{height:44px;background:var(--deodar);color:#fff;border-radius:6px;font-weight:400}
+.chart thead th b{display:block;font-size:16px;line-height:1.1}
+.chart thead th small{display:block;font-size:11.5px;color:#BFD3D8;line-height:1.2}
+.chart thead th.wkend{background:var(--deodar-2)}
+.chart thead th.is-today{background:var(--brass);color:#2B1F04}
+.chart thead th.is-today small{color:#2B1F04}
+.chart th.corner,.chart th.room{position:sticky;left:0;z-index:5;background:var(--snow);padding-left:12px;text-align:left;box-shadow:6px 0 8px -6px rgba(19,52,59,.35)}
+.chart th.corner{font-size:12.5px;color:var(--mute);font-weight:600;border-radius:0}
+.chart th.room .fob{min-width:66px;justify-content:flex-start}
+.chart td.vac{background:var(--vacant);border-radius:6px;cursor:pointer}
+.chart td.vac.gone{background:var(--vacant-past)}
+.chart td.vac.is-today{box-shadow:inset 0 0 0 2.5px var(--brass)}
+.chart td.vac:active{filter:brightness(.93)}
+.chart td.bk{background:var(--booked);color:#fff;border-radius:6px;cursor:pointer;padding:0 6px;font-size:12.5px;font-weight:600;line-height:1.15;text-align:left;overflow:hidden}
+.chart td.bk.gone{background:var(--booked-past)}
+.chart td.bk span{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere}
+.chart td.bk.one{padding:0 3px;text-align:center;font-size:11px}
+.chart td.bk.from-prev{border-top-left-radius:0;border-bottom-left-radius:0}
+.chart td.bk.to-next{border-top-right-radius:0;border-bottom-right-radius:0}
+.chart tfoot td{height:30px;font-size:13px;font-weight:700;color:var(--mute)}
+.chart tfoot td.full{color:var(--booked)}
+.chart tfoot th{font-size:12.5px;color:var(--mute);font-weight:600}
+.hint{font-size:13.5px;color:var(--mute);margin:8px 2px 0}
+
+/* ---------- lists ---------- */
+.counts{display:grid;grid-template-columns:repeat(4,1fr);background:var(--paper);border:1px solid var(--line);border-radius:12px;margin-bottom:14px}
+.counts div{padding:10px 4px;text-align:center;border-left:1px solid var(--line)}
+.counts div:first-child{border-left:0}
+.counts b{display:block;font-family:var(--serif);font-size:26px;line-height:1.1}
+.counts span{font-size:12.5px;color:var(--mute)}
+.rows{background:var(--paper);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.row{display:flex;align-items:center;gap:12px;width:100%;padding:11px 12px;border:0;border-top:1px solid var(--glacier);background:transparent;text-align:left;min-height:60px}
+.row:first-child{border-top:0}
+button.row:active{background:var(--glacier)}
+.row .mid{flex:1;min-width:0}
+.row .mid b{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;font-weight:600;overflow:hidden;overflow-wrap:anywhere;line-height:1.25}
+.row .mid small{display:block;font-size:13.5px;color:var(--mute)}
+.tag{flex:none;font-size:12.5px;font-weight:700;padding:4px 9px;border-radius:999px;white-space:nowrap}
+.tag.free{background:var(--vacant);color:var(--vacant-ink)}
+.tag.taken{background:var(--booked);color:#fff}
+.tag.soon{background:var(--glacier);color:var(--deodar)}
+.tag.done{background:#ECEFF0;color:var(--mute)}
+.tag.brass{background:var(--brass-tint);color:var(--brass-ink)}
+.mini{flex:none;height:38px;padding:0 14px;border-radius:9px;border:1.5px solid var(--deodar);background:var(--deodar);color:#fff;font-weight:700;font-size:14px}
+.empty{padding:26px 16px;text-align:center;color:var(--mute)}
+.chips{display:flex;gap:8px;margin:12px 0;overflow-x:auto}
+.chips button{flex:none;height:38px;padding:0 14px;border-radius:19px;border:1.5px solid var(--line);background:var(--paper);font-weight:600;font-size:14px;color:var(--mute)}
+.chips button[aria-pressed="true"]{background:var(--deodar);border-color:var(--deodar);color:#fff}
+.answer{margin:14px 0;padding:12px 14px;border-radius:12px;font-weight:600;background:var(--vacant);color:var(--vacant-ink)}
+.answer.none{background:var(--booked-soft);color:var(--booked)}
+
+/* ---------- bottom sheet ---------- */
+.scrim{position:fixed;inset:0;z-index:60;background:rgba(15,36,41,.52);display:flex;align-items:flex-end;justify-content:center}
+.sheet{width:100%;max-width:560px;max-height:92%;overflow-y:auto;background:var(--snow);border-radius:20px 20px 0 0;padding:8px 18px max(20px,env(safe-area-inset-bottom));animation:rise .2s ease-out}
+@keyframes rise{from{transform:translateY(28px)}}
+.sheet-head{position:sticky;top:-8px;z-index:2;background:var(--snow);display:flex;align-items:center;gap:10px;padding:12px 0 10px;margin-bottom:6px}
+.sheet-head h2{font-family:var(--serif);font-size:22px;font-weight:600;flex:1;min-width:0;line-height:1.2}
+.close{width:44px;height:44px;border:0;border-radius:10px;background:var(--glacier);display:grid;place-items:center;flex:none}
+.close svg{width:20px;height:20px}
+.sheet form{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+.stay{font-size:14.5px;font-weight:600;padding:10px 12px;border-radius:10px;background:var(--vacant);color:var(--vacant-ink)}
+.stay.bad{background:var(--booked-soft);color:var(--booked)}
+.stay.idle{background:var(--glacier);color:var(--mute)}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+.actions.single{grid-template-columns:1fr}
+dl.facts{margin:6px 0 16px;background:var(--paper);border:1px solid var(--line);border-radius:12px}
+dl.facts div{display:flex;gap:12px;padding:12px 14px;border-top:1px solid var(--glacier);align-items:center;min-height:52px}
+dl.facts div:first-child{border-top:0}
+dl.facts dt{width:98px;flex:none;font-size:14px;color:var(--mute)}
+dl.facts dd{margin:0;flex:1;min-width:0;font-weight:600;overflow-wrap:anywhere}
+dl.facts dd.plain{font-weight:400}
+.reveal{height:36px;padding:0 12px;border-radius:9px;border:1.5px solid var(--line);background:var(--snow);font-weight:600;font-size:14px}
+.call{margin-left:10px;font-weight:700;color:var(--deodar-2)}
+
+#toast{position:fixed;left:50%;bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 80px);transform:translateX(-50%);z-index:80;max-width:calc(100% - 32px);background:var(--ink);color:#fff;padding:11px 16px;border-radius:10px;font-weight:600;font-size:15px;box-shadow:0 8px 22px rgba(0,0,0,.25)}
+#toast.bad{background:var(--booked)}
+
+/* ---------- wide screens ---------- */
+@media (min-width:900px){
+  :root{--cw:34px;--rh:44px;--rw:76px}
+  #app{padding-bottom:0}
+  .bar{padding:10px 20px}
+  .bar h1{font-size:22px;flex:none;margin-right:28px}
+  .tabs{position:sticky;top:64px;bottom:auto;height:52px;padding:0 20px;border-top:0;border-bottom:1px solid var(--line);display:flex;gap:6px;z-index:29}
+  .tabs button{display:flex;gap:8px;padding:0 16px;font-size:15px;position:relative}
+  .tabs button[aria-selected="true"]::after{position:absolute;left:16px;right:16px;bottom:0;width:auto}
+  main{padding:22px 24px 110px}
+  .chart-scroll{margin:0;padding:0 0 6px}
+  .chart th.corner,.chart th.room{padding-left:0}
+  .fab{bottom:24px;right:24px}
+  .scrim{align-items:center}
+  .sheet{border-radius:18px;padding:8px 24px 24px}
+  #toast{bottom:96px}
+  #login{flex-direction:row}
+  .login-card{width:440px;flex:none;display:flex;align-items:center;padding:40px}
+  .login-card form{width:100%}
+  .login-top{margin:0;padding:72px 56px 0;max-width:640px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
 
-<!-- ═══════════════ CURTAIN ═══════════════ -->
-<div id="curtain-container" onclick="openCurtain()">
-  <div class="curtain curtain-left" id="curtain-left">
-    <div class="curtain-rod"></div>
-    <div class="fold" style="left:20%"></div>
-    <div class="fold" style="left:40%"></div>
-    <div class="fold" style="left:60%"></div>
-    <div class="fold" style="left:80%"></div>
-    <div class="tassel" style="left:15%; top:18px; height:22px;">
-      <div class="tassel-strings">
-        <div class="tassel-string"></div>
-        <div class="tassel-string"></div>
-        <div class="tassel-string"></div>
-      </div>
+<!-- ============ Sign in ============ -->
+<div id="login">
+  <div class="login-side">
+    <div class="login-top">
+      <h1>Avalanche Officers' Mess</h1>
+      <p>Booking Portal</p>
     </div>
-    <div class="tassel" style="left:50%; transform:translateX(-50%); top:18px; height:22px;">
-      <div class="tassel-strings">
-        <div class="tassel-string"></div>
-        <div class="tassel-string"></div>
-        <div class="tassel-string"></div>
-      </div>
-    </div>
-    <div class="tassel" style="left:80%; top:18px; height:22px;">
-      <div class="tassel-strings">
-        <div class="tassel-string"></div>
-        <div class="tassel-string"></div>
-        <div class="tassel-string"></div>
-      </div>
-    </div>
+    <svg class="ridge" viewBox="0 0 400 150" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 96 46 62l30 22 44-56 34 40 28-24 46 52 40-36 52 44 44-30 36 22v54H0z" fill="#1F4D56"/>
+      <path d="M120 28 104 49l12-5 8 9 9-8 13 6z M228 96l-20-23 9 3 9-8 10 12z M324 104l-16-14 8 1 8-6 8 10z" fill="#E4EDF0" opacity=".9"/>
+      <path d="M0 150v-30l38-22 34 18 46-34 40 30 38-22 50 36 44-26 46 28 38-18 26 12v28z" fill="#F3F6F8"/>
+    </svg>
   </div>
-
-  <div class="curtain curtain-right" id="curtain-right">
-    <div class="curtain-rod"></div>
-    <div class="fold" style="left:20%"></div>
-    <div class="fold" style="left:40%"></div>
-    <div class="fold" style="left:60%"></div>
-    <div class="fold" style="left:80%"></div>
+  <div class="login-card">
+    <form id="login-form" autocomplete="off">
+      <div class="notice" id="setup-note" hidden>This site is not connected to its Google Sheet yet. Paste the web app address into the file config.js.</div>
+      <label class="f">Password
+        <span class="pw-wrap">
+          <input class="in" id="pw" type="password" autocomplete="current-password" required>
+          <button type="button" id="pw-toggle" aria-label="Show password">Show</button>
+        </span>
+      </label>
+      <label class="check"><input type="checkbox" id="remember" checked> Keep me signed in on this device</label>
+      <div class="error" id="login-error" role="alert"></div>
+      <button class="btn" id="login-btn" type="submit">Sign in</button>
+    </form>
   </div>
-
-  <div class="curtain-center-ornament">🌹</div>
-  <div class="curtain-tap-hint">✦ Tap to unveil ✦</div>
 </div>
 
-<!-- ═══════════════ PAGE 1: HERO ═══════════════ -->
-<section id="page-hero" class="page">
-  <div class="stars-bg" id="starsHero"></div>
-  <div class="hero-frame"></div>
+<!-- ============ App ============ -->
+<div id="app" hidden>
+  <header class="bar">
+    <h1>Avalanche Officers' Mess<span>Booking Portal</span></h1>
+    <button class="icon-btn" id="refresh" aria-label="Refresh" title="Refresh">
+      <svg class="spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 6.3"/><path d="M20 4v7h-7"/></svg>
+    </button>
+    <button class="icon-btn" id="signout" aria-label="Sign out" title="Sign out">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 16l-4-4 4-4"/><path d="M6 12h10"/></svg>
+    </button>
+  </header>
 
-  <div class="corner-flourish corner-tl">✿</div>
-  <div class="corner-flourish corner-tr">✿</div>
-  <div class="corner-flourish corner-bl">✿</div>
-  <div class="corner-flourish corner-br">✿</div>
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button role="tab" data-view="chart" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 4v16M15 4v16"/></svg>Chart</button>
+    <button role="tab" data-view="today" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4"/></svg>Today</button>
+    <button role="tab" data-view="find" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>Find a room</button>
+    <button role="tab" data-view="list" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg>Bookings</button>
+  </nav>
 
-  <!-- Floating graffiti words -->
-  <div class="graffiti" style="font-size:48px; top:8%; left:3%; --rot:-15deg;">forever</div>
-  <div class="graffiti" style="font-size:36px; bottom:18%; right:2%; --rot:12deg; animation-delay:-3s;">always</div>
-  <div class="graffiti" style="font-size:28px; top:22%; right:4%; --rot:8deg; animation-delay:-1.5s;">amor</div>
-  <div class="graffiti" style="font-size:32px; bottom:30%; left:1%; --rot:-8deg; animation-delay:-2s;">beloved</div>
-
-  <!-- Floating petals (JS added) -->
-  <div id="petals-container"></div>
-
-  <!-- Sparkles -->
-  <div class="sparkle" style="top:15%;left:20%;animation-delay:0s;">✨</div>
-  <div class="sparkle" style="top:25%;right:18%;animation-delay:1s;">⭐</div>
-  <div class="sparkle" style="bottom:25%;left:15%;animation-delay:2s;">✨</div>
-  <div class="sparkle" style="bottom:18%;right:22%;animation-delay:0.5s;">💫</div>
-
-  <!-- Lamps -->
-  <div class="lamp" style="top:5%; left:5%;">🪔</div>
-  <div class="lamp" style="top:5%; right:5%; animation-delay:-0.7s;">🪔</div>
-
-  <!-- Main content -->
-  <div style="position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; width:100%; padding-top: 20px;">
-
-    <div class="flower-ring" id="flowerRing">
-      <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; z-index:2;">
-        <div style="text-align:center;">
-          <div style="font-size:52px; animation: heartbeat 1.5s ease-in-out infinite;">💝</div>
-        </div>
+  <main>
+    <section id="v-chart">
+      <div class="month-bar">
+        <button class="step" id="prev" aria-label="Previous month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"/></svg></button>
+        <h2 id="month-name"></h2>
+        <button class="pill" id="this-month">Today</button>
+        <button class="step" id="next" aria-label="Next month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></button>
       </div>
-    </div>
+      <div class="legend"><span><i style="background:var(--vacant)"></i>Vacant</span><span><i style="background:var(--booked)"></i>Booked</span><span><i style="background:var(--brass)"></i>Today</span></div>
+      <div class="chart-scroll" id="chart-scroll"></div>
+      <p class="hint">Tap a green square to book that room from that day. Tap a red bar to see the guest.</p>
+    </section>
 
-    <div class="hero-subtitle">With Joy & Love, We Invite You</div>
+    <section id="v-today" class="narrow" hidden></section>
 
-    <div class="hero-title">
-      Saurabh
-      <span class="amp">weds</span>
-      Hrutuja
-    </div>
-
-    <div class="hero-divider">
-      <div class="hero-divider-line"></div>
-      <div class="hero-divider-heart">🌸</div>
-      <div class="hero-divider-line"></div>
-    </div>
-
-    <div class="hero-tagline">
-      Two hearts, one story, a lifetime of memories begins…
-    </div>
-
-    <!-- flower garland row -->
-    <div style="font-size:22px; margin-top:20px; letter-spacing:6px; opacity:0.6; animation: fadeIn 1s ease 3s forwards; opacity:0;">
-      🌺🌸🌼🌸🌺
-    </div>
-  </div>
-
-  <div class="swipe-hint">
-    <span>↓</span>
-    <span>Scroll</span>
-  </div>
-</section>
-
-<!-- ═══════════════ PAGE 2: DATE + TIMER ═══════════════ -->
-<section id="page-date" class="page">
-  <div class="stars-bg" id="starsDate"></div>
-
-  <!-- Floating sparkles -->
-  <div class="sparkle" style="top:10%;left:10%;animation-delay:0.5s;">💫</div>
-  <div class="sparkle" style="top:20%;right:12%;animation-delay:1.5s;">✨</div>
-  <div class="sparkle" style="bottom:15%;left:18%;animation-delay:2.5s;">⭐</div>
-
-  <div style="font-family:'Cormorant Garamond',serif; font-size:11px; letter-spacing:5px; text-transform:uppercase; color:var(--gold); text-align:center; margin-bottom:28px; opacity:0.7;">
-    Save the Date
-  </div>
-
-  <div class="deck">
-    <div class="deck-label">✦ Scratch to reveal the date ✦</div>
-
-    <!-- Scratch card -->
-    <div class="scratch-container" id="scratchContainer">
-      <div class="scratch-reveal" id="scratchReveal">
-        <div class="scratch-reveal-label">The auspicious day</div>
-        <div class="scratch-reveal-date">1 Nov 2028</div>
-        <div class="scratch-reveal-sub">Friday • Shubh Muhurat</div>
+    <section id="v-find" class="narrow" hidden>
+      <div class="view-head"><h2>Find a free room</h2></div>
+      <div class="two">
+        <label class="f">Check-in<input class="in" type="date" id="find-in"></label>
+        <label class="f">Check-out<input class="in" type="date" id="find-out"></label>
       </div>
-      <canvas id="scratchCanvas"></canvas>
-    </div>
+      <div id="find-out-box"></div>
+    </section>
 
-    <div class="scratch-hint" id="scratchHint">🖊️ Scratch the gold to reveal the date…</div>
-    <div class="scratch-cleared" id="scratchCleared">🎉 The date is revealed! 🎊</div>
-  </div>
-
-  <!-- Timer -->
-  <div class="timer-section">
-    <div class="hearts-divider">💕 &nbsp; 💕 &nbsp; 💕</div>
-    <div class="timer-title">Counting down to forever…</div>
-    <div class="timer-grid">
-      <div class="timer-unit" id="t-days">
-        <div class="timer-number" id="t-days-num">000</div>
-        <div class="timer-label">Days</div>
+    <section id="v-list" class="narrow" hidden>
+      <div class="view-head"><h2>Bookings</h2><p id="list-count"></p></div>
+      <input class="in" type="search" id="search" placeholder="Search name, room or referred by" aria-label="Search bookings">
+      <div class="chips" id="chips">
+        <button data-f="now" aria-pressed="true">Current and upcoming</button>
+        <button data-f="past" aria-pressed="false">Past</button>
+        <button data-f="all" aria-pressed="false">All</button>
       </div>
-      <div class="timer-unit" id="t-hours">
-        <div class="timer-number" id="t-hours-num">00</div>
-        <div class="timer-label">Hours</div>
-      </div>
-      <div class="timer-unit" id="t-mins">
-        <div class="timer-number" id="t-mins-num">00</div>
-        <div class="timer-label">Mins</div>
-      </div>
-      <div class="timer-unit" id="t-secs">
-        <div class="timer-number" id="t-secs-num">00</div>
-        <div class="timer-label">Secs</div>
-      </div>
-    </div>
-  </div>
+      <div id="list-box"></div>
+    </section>
+  </main>
 
-  <div class="scroll-down-arrow">⌄</div>
-</section>
+  <button class="fab" id="new"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>New booking</button>
+</div>
 
-<!-- ═══════════════ PAGE 3: VENUE ═══════════════ -->
-<section id="page-venue" class="page">
-  <div class="stars-bg" id="starsVenue"></div>
+<div class="scrim" id="scrim" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
+<div id="toast" role="status" hidden></div>
 
-  <!-- Lamps -->
-  <div class="lamp" style="top:4%; left:6%; font-size:32px;">🪔</div>
-  <div class="lamp" style="top:4%; right:6%; font-size:32px; animation-delay:-0.5s;">🪔</div>
-
-  <div class="sparkle" style="top:12%;left:12%;animation-delay:0.8s;">🌸</div>
-  <div class="sparkle" style="bottom:20%;right:10%;animation-delay:1.8s;">🌺</div>
-
-  <div class="venue-header">Join Us</div>
-  <div class="venue-subheader">✦ Venues & Celebrations ✦</div>
-
-  <!-- Marriage Venue -->
-  <div class="venue-card">
-    <div class="venue-badge">
-      <span>💍</span> Marriage Ceremony
-    </div>
-    <div class="venue-city">Pune</div>
-    <div class="venue-event-name">The Wedding</div>
-    <div class="venue-divider"></div>
-    <div class="venue-detail">
-      📅 &nbsp;1st November, 2028<br>
-      ⏰ &nbsp;Auspicious Morning Muhurat<br>
-      📍 &nbsp;Pune, Maharashtra
-    </div>
-    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:4px;">
-      <span style="font-size:20px;">🌸</span>
-      <span style="font-size:20px;">🌺</span>
-      <span style="font-size:20px;">🪔</span>
-      <span style="font-size:20px;">💐</span>
-      <span style="font-size:20px;">🌼</span>
-    </div>
-  </div>
-
-  <!-- Reception Venue -->
-  <div class="venue-card" style="margin-top:16px;">
-    <div class="venue-badge">
-      <span>🥂</span> Reception
-    </div>
-    <div class="venue-city">Gorakhpur</div>
-    <div class="venue-event-name">The Grand Reception</div>
-    <div class="venue-divider"></div>
-    <div class="venue-detail">
-      📅 &nbsp;Following the wedding celebrations<br>
-      ⏰ &nbsp;Evening Soirée<br>
-      📍 &nbsp;Gorakhpur, Uttar Pradesh
-    </div>
-    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:4px;">
-      <span style="font-size:20px;">🎊</span>
-      <span style="font-size:20px;">✨</span>
-      <span style="font-size:20px;">🕯️</span>
-      <span style="font-size:20px;">🌹</span>
-      <span style="font-size:20px;">🎶</span>
-    </div>
-  </div>
-
-  <!-- Love poem -->
-  <div class="love-poem" style="margin-top:28px;">
-    <span class="quote-mark">"</span>
-    <p>
-      Where two souls meet,<br>
-      in the warmth of togetherness,<br>
-      love writes its most beautiful story.
-    </p>
-    <div style="font-size:22px; margin-top:16px; letter-spacing:8px;">
-      🌹 💑 🌹
-    </div>
-  </div>
-
-  <!-- Final note -->
-  <div style="margin-top:28px; text-align:center; padding:0 20px; max-width:360px;">
-    <div style="font-family:'Great Vibes',cursive; font-size:32px; color:var(--gold); text-shadow:0 0 20px rgba(201,168,76,0.4); margin-bottom:8px;">
-      With love & blessings
-    </div>
-    <div style="font-family:'Cormorant Garamond',serif; font-size:13px; letter-spacing:3px; text-transform:uppercase; color:rgba(245,198,198,0.5);">
-      Saurabh &amp; Hrutuja
-    </div>
-  </div>
-
-  <div style="height:40px;"></div>
-</section>
-
+<script src="config.js"></script>
 <script>
-// ═══ CURTAIN ═══
-function openCurtain() {
-  document.getElementById('curtain-container').classList.add('opened');
-}
+(function () {
+  'use strict';
 
-// ═══ STARS BACKGROUND ═══
-function createStars(containerId, count) {
-  const container = document.getElementById(containerId);
-  if (!container) return;
-  for (let i = 0; i < count; i++) {
-    const star = document.createElement('div');
-    star.className = 'star-dot';
-    const size = Math.random() * 2.5 + 0.5;
-    star.style.cssText = `
-      width: ${size}px;
-      height: ${size}px;
-      top: ${Math.random() * 100}%;
-      left: ${Math.random() * 100}%;
-      animation-duration: ${Math.random() * 4 + 2}s;
-      animation-delay: ${Math.random() * 4}s;
-      opacity: ${Math.random() * 0.3 + 0.1};
-    `;
-    container.appendChild(star);
+  var API = (window.BOOKING_API_URL || '').trim();
+  var CONNECTED = /^https:\/\/|^\/|^http:\/\/localhost/.test(API);
+  var KEY = 'aom-booking-token';
+  var S = { token: '', rooms: [], bookings: [], view: 'chart', y: 0, m: 0, filter: 'now', q: '', loadedAt: 0, pending: 0 };
+
+  var $ = function (id) { return document.getElementById(id); };
+  var X = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>';
+
+  /* ---------- dates (all as yyyy-mm-dd text) ---------- */
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function ymd(y, m, d) { return y + '-' + pad(m) + '-' + pad(d); }
+  function today() { var d = new Date(); return ymd(d.getFullYear(), d.getMonth() + 1, d.getDate()); }
+  function toDate(s) { var p = s.split('-'); return new Date(Date.UTC(+p[0], +p[1] - 1, +p[2])); }
+  function addDays(s, n) { var d = toDate(s); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
+  function nights(a, b) { return Math.round((toDate(b) - toDate(a)) / 86400000); }
+  function show(s, opts) { return toDate(s).toLocaleDateString('en-GB', Object.assign({ timeZone: 'UTC' }, opts)); }
+  function short(s) { return show(s, { weekday: 'short' }) + ' ' + show(s, { day: 'numeric', month: 'short' }); }
+  function long(s) { return show(s, { weekday: 'long' }) + ' ' + show(s, { day: 'numeric', month: 'long', year: 'numeric' }); }
+  function nightsText(n) { return n + (n === 1 ? ' night' : ' nights'); }
+  function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+
+  /* ---------- booking helpers ---------- */
+  function occupant(room, date) {
+    for (var i = 0; i < S.bookings.length; i++) {
+      var b = S.bookings[i];
+      if (b.room === room && b.checkIn <= date && b.checkOut > date) return b;
+    }
+    return null;
   }
-}
-
-createStars('starsHero', 80);
-createStars('starsDate', 60);
-createStars('starsVenue', 70);
-
-// ═══ FLOATING PETALS ═══
-const petalEmojis = ['🌸','🌺','🌼','🌷','🌹','💐','🪷'];
-const container = document.getElementById('petals-container');
-function spawnPetal() {
-  const p = document.createElement('div');
-  p.className = 'petal';
-  p.textContent = petalEmojis[Math.floor(Math.random() * petalEmojis.length)];
-  p.style.left = Math.random() * 100 + '%';
-  p.style.fontSize = (16 + Math.random() * 18) + 'px';
-  const dur = 7 + Math.random() * 8;
-  p.style.animationDuration = dur + 's';
-  p.style.animationDelay = Math.random() * 4 + 's';
-  container.appendChild(p);
-  setTimeout(() => p.remove(), (dur + 4) * 1000);
-}
-for (let i = 0; i < 10; i++) setTimeout(spawnPetal, i * 600);
-setInterval(spawnPetal, 1800);
-
-// ═══ FLOWER RING ═══
-const flowers = ['🌸','🌺','🌼','🌷','🌹','💮','🪷','🌻','🌸','🌺','🌼','🌷'];
-const ring = document.getElementById('flowerRing');
-flowers.forEach((f, i) => {
-  const el = document.createElement('div');
-  el.className = 'flower-ring-item';
-  const angle = (i / flowers.length) * 360;
-  el.style.setProperty('--start-angle', angle + 'deg');
-  el.style.transform = `rotate(${angle}deg) translateX(130px) rotate(-${angle}deg)`;
-  el.textContent = f;
-  ring.appendChild(el);
-});
-
-// ═══ SCRATCH CARD ═══
-(function() {
-  const canvas = document.getElementById('scratchCanvas');
-  const ctx = canvas.getContext('2d');
-  const container = document.getElementById('scratchContainer');
-  const hint = document.getElementById('scratchHint');
-  const cleared = document.getElementById('scratchCleared');
-
-  function resizeCanvas() {
-    const rect = container.getBoundingClientRect();
-    canvas.width = rect.width;
-    canvas.height = rect.height;
-    drawScratchLayer();
+  function clashes(room, cin, cout, ignoreId) {
+    return S.bookings.filter(function (b) { return b.id !== ignoreId && b.room === room && b.checkIn < cout && b.checkOut > cin; });
+  }
+  function byId(id) { return S.bookings.filter(function (b) { return b.id === id; })[0]; }
+  function status(b) {
+    var t = today();
+    if (t < b.checkIn) return { text: 'Upcoming', cls: 'soon' };
+    if (t < b.checkOut) return { text: 'Staying now', cls: 'taken' };
+    return { text: 'Checked out', cls: 'done' };
   }
 
-  function drawScratchLayer() {
-    const grd = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-    grd.addColorStop(0, '#8B6914');
-    grd.addColorStop(0.3, '#C9A84C');
-    grd.addColorStop(0.6, '#F0D080');
-    grd.addColorStop(1, '#C9A84C');
-    ctx.fillStyle = grd;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  /* ---------- talking to the Google Sheet ---------- */
+  function api(action, data) {
+    S.pending++; $('refresh').classList.add('busy');
+    var body = Object.assign({ action: action, token: S.token }, data || {});
+    return fetch(API, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) })
+      .then(function (r) { return r.json(); })
+      .catch(function () { return { ok: false, error: 'network', message: 'No connection. Check the internet and try again.' }; })
+      .then(function (res) {
+        if (--S.pending === 0) $('refresh').classList.remove('busy');
+        if (res.error === 'auth') { signOut('Please sign in again.'); }
+        if (res.rooms) S.rooms = res.rooms;
+        if (res.bookings) { S.bookings = res.bookings; S.loadedAt = Date.now(); }
+        return res;
+      });
+  }
+  function saveToken(remember) {
+    try { (remember ? localStorage : sessionStorage).setItem(KEY, S.token); } catch (e) {}
+  }
+  function readToken() {
+    try { return localStorage.getItem(KEY) || sessionStorage.getItem(KEY) || ''; } catch (e) { return ''; }
+  }
+  function clearToken() {
+    try { localStorage.removeItem(KEY); sessionStorage.removeItem(KEY); } catch (e) {}
+  }
 
-    // Pattern overlay
-    ctx.fillStyle = 'rgba(0,0,0,0.1)';
-    for (let x = 0; x < canvas.width; x += 20) {
-      for (let y = 0; y < canvas.height; y += 20) {
-        ctx.fillText('✦', x, y + 16);
+  /* ---------- sign in / out ---------- */
+  function signOut(message) {
+    S.token = ''; S.bookings = []; clearToken(); closeSheet();
+    $('app').hidden = true; $('login').hidden = false;
+    $('login-error').textContent = message || '';
+    $('pw').value = '';
+  }
+  function enter() {
+    $('login').hidden = true; $('app').hidden = false;
+    var t = today().split('-'); S.y = +t[0]; S.m = +t[1];
+    go('chart');
+  }
+  $('login-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (!CONNECTED) return;
+    var btn = $('login-btn');
+    btn.disabled = true; btn.textContent = 'Signing in…'; $('login-error').textContent = '';
+    api('login', { password: $('pw').value }).then(function (res) {
+      btn.disabled = false; btn.textContent = 'Sign in';
+      if (!res.ok) { $('login-error').textContent = res.message || 'Could not sign in.'; return; }
+      S.token = res.token; saveToken($('remember').checked); enter();
+    });
+  });
+  $('pw-toggle').addEventListener('click', function () {
+    var p = $('pw'), on = p.type === 'password';
+    p.type = on ? 'text' : 'password'; this.textContent = on ? 'Hide' : 'Show';
+    this.setAttribute('aria-label', on ? 'Hide password' : 'Show password');
+  });
+  $('signout').addEventListener('click', function () { signOut(''); });
+  $('refresh').addEventListener('click', function () { reload(true); });
+
+  function reload(announce) {
+    return api('list').then(function (res) {
+      if (res.ok) { render(); if (announce) toast('Up to date'); }
+      else if (res.error !== 'auth') toast(res.message || 'Could not refresh.', true);
+    });
+  }
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden && S.token && Date.now() - S.loadedAt > 45000 && $('scrim').hidden) reload(false);
+  });
+
+  /* ---------- navigation ---------- */
+  function go(view) {
+    S.view = view;
+    ['chart', 'today', 'find', 'list'].forEach(function (v) { $('v-' + v).hidden = v !== view; });
+    Array.prototype.forEach.call(document.querySelectorAll('.tabs button'), function (b) {
+      b.setAttribute('aria-selected', b.dataset.view === view ? 'true' : 'false');
+    });
+    render(true);
+    window.scrollTo(0, 0);
+  }
+  document.querySelector('.tabs').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (b) go(b.dataset.view);
+  });
+  function render(fresh) {
+    if (S.view === 'chart') renderChart(fresh);
+    if (S.view === 'today') renderToday();
+    if (S.view === 'find') renderFind();
+    if (S.view === 'list') renderList();
+  }
+
+  /* ---------- chart ---------- */
+  function renderChart(jumpToToday) {
+    var y = S.y, m = S.m, t = today();
+    var days = new Date(y, m, 0).getDate();
+    var first = ymd(y, m, 1), afterLast = addDays(ymd(y, m, days), 1);
+    $('month-name').textContent = show(first, { month: window.innerWidth < 380 ? 'short' : 'long', year: 'numeric' });
+
+    var h = '<table class="chart" style="--days:' + days + '"><colgroup><col class="room">';
+    for (var c = 1; c <= days; c++) h += '<col>';
+    h += '</colgroup><thead><tr><th class="corner" scope="col">Room</th>';
+    var free = [];
+    for (var d = 1; d <= days; d++) {
+      var ds = ymd(y, m, d), wd = toDate(ds).getUTCDay();
+      free[d] = 0;
+      h += '<th scope="col" class="' + (ds === t ? 'is-today' : (wd === 0 || wd === 6 ? 'wkend' : '')) + '"><small>' +
+        show(ds, { weekday: 'short' }) + '</small><b>' + d + '</b></th>';
+    }
+    h += '</tr></thead><tbody>';
+    S.rooms.forEach(function (room) {
+      h += '<tr><th class="room" scope="row"><span class="fob">' + esc(room) + '</span></th>';
+      var d = 1;
+      while (d <= days) {
+        var ds = ymd(y, m, d), b = occupant(room, ds);
+        if (b) {
+          var end = b.checkOut < afterLast ? b.checkOut : afterLast;
+          var span = Math.max(1, nights(ds, end));
+          var cls = 'bk' + (b.checkOut <= t ? ' gone' : '') + (span === 1 ? ' one' : '') +
+            (b.checkIn < first && d === 1 ? ' from-prev' : '') + (b.checkOut > afterLast ? ' to-next' : '');
+          h += '<td class="' + cls + '" colspan="' + span + '" data-id="' + esc(b.id) + '" tabindex="0" role="button" aria-label="' +
+            esc(room + ', ' + b.name + ', ' + short(b.checkIn) + ' to ' + short(b.checkOut)) + '"><span>' + esc(b.name || 'Booked') + '</span></td>';
+          d += span;
+        } else {
+          free[d]++;
+          h += '<td class="vac' + (ds < t ? ' gone' : '') + (ds === t ? ' is-today' : '') + '" data-room="' + esc(room) + '" data-date="' + ds +
+            '" tabindex="0" role="button" aria-label="' + esc(room + ' vacant on ' + short(ds) + ', book') + '"></td>';
+          d++;
+        }
       }
-    }
+      h += '</tr>';
+    });
+    h += '</tbody><tfoot><tr><th class="corner" scope="row">Free</th>';
+    for (var f = 1; f <= days; f++) h += '<td class="' + (free[f] === 0 ? 'full' : '') + '">' + free[f] + '</td>';
+    h += '</tr></tfoot></table>';
 
-    // Text overlay
-    ctx.fillStyle = 'rgba(139,105,20,0.8)';
-    ctx.font = 'bold 18px Cormorant Garamond';
-    ctx.textAlign = 'center';
-    ctx.fillText('✦ Scratch Here ✦', canvas.width / 2, canvas.height / 2);
+    var box = $('chart-scroll'), keep = box.scrollLeft;
+    box.innerHTML = h;
+    if (jumpToToday) {
+      var mark = box.querySelector('thead .is-today');
+      box.scrollLeft = mark ? Math.max(0, mark.offsetLeft - box.querySelector('th.corner').offsetWidth - 54) : 0;
+    } else box.scrollLeft = keep;
+  }
+  function chartTap(e) {
+    if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return;
+    var cell = e.target.closest('td'); if (!cell) return;
+    if (e.type === 'keydown') e.preventDefault();
+    if (cell.dataset.id) openDetail(cell.dataset.id);
+    else if (cell.dataset.room) openForm({ room: cell.dataset.room, checkIn: cell.dataset.date, checkOut: addDays(cell.dataset.date, 1) });
+  }
+  $('chart-scroll').addEventListener('click', chartTap);
+  $('chart-scroll').addEventListener('keydown', chartTap);
+  function shift(n) { var d = new Date(S.y, S.m - 1 + n, 1); S.y = d.getFullYear(); S.m = d.getMonth() + 1; renderChart(true); }
+  $('prev').addEventListener('click', function () { shift(-1); });
+  $('next').addEventListener('click', function () { shift(1); });
+  $('this-month').addEventListener('click', function () { var t = today().split('-'); S.y = +t[0]; S.m = +t[1]; renderChart(true); });
+
+  /* ---------- today ---------- */
+  function renderToday() {
+    var t = today(), occ = 0, arr = 0, dep = 0, rows = '';
+    S.rooms.forEach(function (room) {
+      var b = occupant(room, t);
+      var leaving = S.bookings.filter(function (x) { return x.room === room && x.checkOut === t; })[0];
+      if (leaving) dep++;
+      var tag, title, sub;
+      if (b) {
+        occ++;
+        var arriving = b.checkIn === t; if (arriving) arr++;
+        tag = arriving ? '<span class="tag brass">Arriving</span>' : '<span class="tag taken">Occupied</span>';
+        title = esc(b.name || 'Booked');
+        sub = 'Until ' + short(b.checkOut) + (leaving ? '. ' + esc(leaving.name) + ' leaves today' : '');
+      } else {
+        tag = '<span class="tag free">Vacant</span>';
+        var next = S.bookings.filter(function (x) { return x.room === room && x.checkIn > t; }).sort(function (a, c) { return a.checkIn < c.checkIn ? -1 : 1; })[0];
+        title = leaving ? esc(leaving.name) + ' leaves today' : 'Vacant';
+        sub = next ? 'Next: ' + esc(next.name) + ' from ' + short(next.checkIn) : 'No bookings ahead';
+      }
+      rows += (b ? '<button class="row" data-id="' + esc(b.id) + '">' : '<button class="row" data-room="' + esc(room) + '">') +
+        '<span class="fob">' + esc(room) + '</span><span class="mid"><b>' + title + '</b><small>' + sub + '</small></span>' + tag + '</button>';
+    });
+    $('v-today').innerHTML = '<div class="view-head"><h2>' + long(t) + '</h2></div>' +
+      '<div class="counts"><div><b>' + occ + '</b><span>occupied</span></div><div><b>' + (S.rooms.length - occ) + '</b><span>vacant</span></div>' +
+      '<div><b>' + arr + '</b><span>arriving</span></div><div><b>' + dep + '</b><span>leaving</span></div></div>' +
+      '<div class="rows">' + rows + '</div>';
+  }
+  $('v-today').addEventListener('click', function (e) {
+    var r = e.target.closest('.row'); if (!r) return;
+    if (r.dataset.id) openDetail(r.dataset.id);
+    else openForm({ room: r.dataset.room, checkIn: today(), checkOut: addDays(today(), 1) });
+  });
+
+  /* ---------- find a room ---------- */
+  function renderFind() {
+    var fin = $('find-in'), fout = $('find-out');
+    if (!fin.value) { fin.value = today(); fout.value = addDays(today(), 1); }
+    var a = fin.value, b = fout.value, box = $('find-out-box');
+    if (!a || !b || b <= a) { box.innerHTML = '<p class="answer none">Choose a check-out date after the check-in date.</p>'; return; }
+    var freeRooms = [], rows = '';
+    S.rooms.forEach(function (room) {
+      var hit = clashes(room, a, b, null);
+      if (!hit.length) freeRooms.push(room);
+    });
+    S.rooms.forEach(function (room) {
+      var hit = clashes(room, a, b, null);
+      if (!hit.length) {
+        rows += '<div class="row"><span class="fob">' + esc(room) + '</span><span class="mid"><b>Free</b><small>' + short(a) + ' to ' + short(b) + '</small></span>' +
+          '<button class="mini" data-room="' + esc(room) + '">Book</button></div>';
+      } else {
+        rows += '<button class="row" data-id="' + esc(hit[0].id) + '"><span class="fob">' + esc(room) + '</span><span class="mid"><b>' + esc(hit[0].name) +
+          (hit.length > 1 ? ' and ' + (hit.length - 1) + ' more' : '') + '</b><small>' + short(hit[0].checkIn) + ' to ' + short(hit[0].checkOut) +
+          '</small></span><span class="tag taken">Booked</span></button>';
+      }
+    });
+    var n = nights(a, b);
+    box.innerHTML = '<p class="answer' + (freeRooms.length ? '' : ' none') + '">' +
+      (freeRooms.length ? freeRooms.length + (freeRooms.length === 1 ? ' room is' : ' rooms are') + ' free for ' + nightsText(n) + ': ' + esc(freeRooms.join(', '))
+        : 'No room is free for the whole stay.') + '</p><div class="rows">' + rows + '</div>';
+  }
+  $('find-in').addEventListener('change', function () {
+    var o = $('find-out'); if (this.value && (!o.value || o.value <= this.value)) o.value = addDays(this.value, 1); renderFind();
+  });
+  $('find-out').addEventListener('change', renderFind);
+  $('find-out-box').addEventListener('click', function (e) {
+    var book = e.target.closest('.mini'), row = e.target.closest('button.row');
+    if (book) openForm({ room: book.dataset.room, checkIn: $('find-in').value, checkOut: $('find-out').value });
+    else if (row) openDetail(row.dataset.id);
+  });
+
+  /* ---------- bookings list ---------- */
+  function renderList() {
+    var t = today(), q = S.q.toLowerCase();
+    var items = S.bookings.filter(function (b) {
+      if (S.filter === 'now' && b.checkOut < t) return false;
+      if (S.filter === 'past' && b.checkOut >= t) return false;
+      return !q || (b.name + ' ' + b.room + ' ' + b.referredBy + ' ' + b.remarks).toLowerCase().indexOf(q) !== -1;
+    }).sort(function (a, b) {
+      var k = a.checkIn === b.checkIn ? (a.room < b.room ? -1 : 1) : (a.checkIn < b.checkIn ? -1 : 1);
+      return S.filter === 'past' ? -k : k;
+    });
+    $('list-count').textContent = items.length + (items.length === 1 ? ' booking' : ' bookings');
+    $('list-box').innerHTML = items.length ? '<div class="rows">' + items.map(function (b) {
+      var st = status(b);
+      return '<button class="row" data-id="' + esc(b.id) + '"><span class="fob">' + esc(b.room) + '</span><span class="mid"><b>' + esc(b.name) +
+        '</b><small>' + short(b.checkIn) + ' to ' + short(b.checkOut) + ', ' + nightsText(nights(b.checkIn, b.checkOut)) + '</small></span>' +
+        '<span class="tag ' + st.cls + '">' + st.text + '</span></button>';
+    }).join('') + '</div>' : '<div class="rows"><p class="empty">' + (q ? 'Nothing matches that search.' : 'No bookings here yet. Use New booking to add one.') + '</p></div>';
+  }
+  $('search').addEventListener('input', function () { S.q = this.value.trim(); renderList(); });
+  $('chips').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    S.filter = b.dataset.f;
+    Array.prototype.forEach.call(this.children, function (c) { c.setAttribute('aria-pressed', c === b ? 'true' : 'false'); });
+    renderList();
+  });
+  $('list-box').addEventListener('click', function (e) { var r = e.target.closest('.row'); if (r && r.dataset.id) openDetail(r.dataset.id); });
+
+  /* ---------- bottom sheet ---------- */
+  var lastFocus = null;
+  function openSheet(html) {
+    lastFocus = document.activeElement;
+    $('sheet').innerHTML = html; $('scrim').hidden = false; document.body.style.overflow = 'hidden';
+    $('sheet').scrollTop = 0;
+    var c = $('sheet').querySelector('.close'); if (c) c.focus();
+  }
+  function closeSheet() {
+    $('scrim').hidden = true; $('sheet').innerHTML = ''; document.body.style.overflow = '';
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+  $('scrim').addEventListener('click', function (e) { if (e.target === this || e.target.closest('.close')) closeSheet(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('scrim').hidden) closeSheet(); });
+
+  function openDetail(id) {
+    var b = byId(id); if (!b) return;
+    var st = status(b), n = nights(b.checkIn, b.checkOut);
+    openSheet('<div class="sheet-head"><span class="fob">' + esc(b.room) + '</span><h2>' + esc(b.name || 'Booked') + '</h2><button class="close" aria-label="Close">' + X + '</button></div>' +
+      '<dl class="facts">' +
+      '<div><dt>Check-in</dt><dd>' + long(b.checkIn) + '</dd></div>' +
+      '<div><dt>Check-out</dt><dd>' + long(b.checkOut) + '</dd></div>' +
+      '<div><dt>Stay</dt><dd class="plain">' + nightsText(n) + ' <span class="tag ' + st.cls + '" style="margin-left:8px">' + st.text + '</span></dd></div>' +
+      '<div><dt>Referred by</dt><dd class="plain">' + (esc(b.referredBy) || 'Not given') + '</dd></div>' +
+      '<div><dt>Phone</dt><dd class="plain" id="phone-slot">' + (b.phone ? '<button class="reveal" id="reveal">Show number</button>' : 'Not given') + '</dd></div>' +
+      '<div><dt>Remarks</dt><dd class="plain">' + (esc(b.remarks) || 'None') + '</dd></div>' +
+      '</dl><div class="actions"><button class="btn danger" id="del">Delete booking</button><button class="btn" id="edit">Change booking</button></div>');
+    var rv = $('reveal');
+    if (rv) rv.addEventListener('click', function () {
+      $('phone-slot').innerHTML = '<b>' + esc(b.phone) + '</b><a class="call" href="tel:' + esc(b.phone.replace(/[^+\d]/g, '')) + '">Call</a>';
+    });
+    $('edit').addEventListener('click', function () { openForm(b); });
+    var del = $('del'), timer;
+    del.addEventListener('click', function () {
+      if (!del.classList.contains('armed')) {
+        del.classList.add('armed'); del.textContent = 'Tap again to delete';
+        timer = setTimeout(function () { del.classList.remove('armed'); del.textContent = 'Delete booking'; }, 4000);
+        return;
+      }
+      clearTimeout(timer); del.disabled = true; del.textContent = 'Deleting…';
+      api('delete', { id: b.id }).then(function (res) {
+        if (res.ok) { closeSheet(); render(); toast('Booking deleted'); }
+        else if (res.error !== 'auth') { del.disabled = false; del.classList.remove('armed'); del.textContent = 'Delete booking'; toast(res.message || 'Could not delete.', true); }
+      });
+    });
   }
 
-  resizeCanvas();
-  setTimeout(resizeCanvas, 300);
+  function openForm(b) {
+    b = b || {};
+    var isEdit = !!b.id;
+    var cin = b.checkIn || today(), cout = b.checkOut || addDays(cin, 1);
+    var options = '<option value="">Choose a room</option>' + S.rooms.map(function (r) {
+      return '<option' + (r === b.room ? ' selected' : '') + '>' + esc(r) + '</option>';
+    }).join('');
+    openSheet('<div class="sheet-head"><h2>' + (isEdit ? 'Change booking' : 'New booking') + '</h2><button class="close" aria-label="Close">' + X + '</button></div>' +
+      '<form id="bf" novalidate>' +
+      '<label class="f">Room<select class="in" id="f-room" required>' + options + '</select></label>' +
+      '<label class="f">Occupant names<textarea class="in" id="f-name" rows="2" maxlength="200" required>' + esc(b.name) + '</textarea></label>' +
+      '<div class="two"><label class="f">Check-in<input class="in" type="date" id="f-in" value="' + cin + '" required></label>' +
+      '<label class="f">Check-out<input class="in" type="date" id="f-out" value="' + cout + '" required></label></div>' +
+      '<div class="stay idle" id="f-stay" role="status"></div>' +
+      '<label class="f"><span>Referred by <small>(optional)</small></span><input class="in" id="f-ref" maxlength="120" value="' + esc(b.referredBy) + '"></label>' +
+      '<label class="f"><span>Phone <small>(optional)</small></span><input class="in" id="f-phone" type="tel" inputmode="tel" maxlength="40" autocomplete="off" value="' + esc(b.phone) + '"></label>' +
+      '<label class="f"><span>Remarks <small>(optional)</small></span><textarea class="in" id="f-rem" rows="2" maxlength="500">' + esc(b.remarks) + '</textarea></label>' +
+      '<div class="actions single"><button class="btn" id="f-save" type="submit">Save booking</button></div></form>');
 
-  let isScratching = false;
-  let totalPixels = 0;
-  let scratchedPixels = 0;
-  let revealed = false;
-
-  function getPos(e) {
-    const r = canvas.getBoundingClientRect();
-    if (e.touches) {
-      return { x: e.touches[0].clientX - r.left, y: e.touches[0].clientY - r.top };
+    function check() {
+      var room = $('f-room').value, a = $('f-in').value, c = $('f-out').value, el = $('f-stay');
+      if (!a || !c) { el.className = 'stay idle'; el.textContent = 'Choose both dates.'; return false; }
+      if (c <= a) { el.className = 'stay bad'; el.textContent = 'Check-out must be after check-in.'; return false; }
+      var n = nightsText(nights(a, c));
+      if (!room) { el.className = 'stay idle'; el.textContent = n + '. Choose a room to check it is free.'; return false; }
+      var hit = clashes(room, a, c, b.id || null);
+      if (hit.length) {
+        el.className = 'stay bad';
+        el.textContent = room + ' is taken by ' + (hit[0].name || 'another guest') + ', ' + short(hit[0].checkIn) + ' to ' + short(hit[0].checkOut) + '.';
+        return false;
+      }
+      el.className = 'stay'; el.textContent = n + '. ' + room + ' is free for these dates.';
+      return true;
     }
-    return { x: e.clientX - r.left, y: e.clientY - r.top };
+    $('f-in').addEventListener('change', function () {
+      var o = $('f-out'); if (this.value && (!o.value || o.value <= this.value)) o.value = addDays(this.value, 1); check();
+    });
+    $('f-out').addEventListener('change', check);
+    $('f-room').addEventListener('change', check);
+    check();
+
+    $('bf').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var name = $('f-name').value.trim();
+      if (!$('f-room').value) { toast('Choose a room.', true); $('f-room').focus(); return; }
+      if (!name) { toast('Enter the occupant name.', true); $('f-name').focus(); return; }
+      if (!check()) { $('f-stay').scrollIntoView({ block: 'center' }); return; }
+      var save = $('f-save'); save.disabled = true; save.textContent = 'Saving…';
+      api('save', { booking: {
+        id: b.id || '', room: $('f-room').value, name: name, checkIn: $('f-in').value, checkOut: $('f-out').value,
+        referredBy: $('f-ref').value.trim(), phone: $('f-phone').value.trim(), remarks: $('f-rem').value.trim()
+      } }).then(function (res) {
+        if (res.ok) {
+          var p = $('f-in').value.split('-'); if (S.view === 'chart') { S.y = +p[0]; S.m = +p[1]; }
+          closeSheet(); render(); toast('Booking saved');
+          return;
+        }
+        if (res.error === 'auth') return;
+        save.disabled = false; save.textContent = 'Save booking';
+        if (res.error === 'clash') { check(); render(); }
+        toast(res.message || 'Could not save.', true);
+      });
+    });
+  }
+  $('new').addEventListener('click', function () { openForm({}); });
+
+  /* ---------- toast ---------- */
+  var toastTimer;
+  function toast(text, bad) {
+    var t = $('toast'); t.textContent = text; t.className = bad ? 'bad' : ''; t.hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.hidden = true; }, bad ? 4500 : 2200);
   }
 
-  function scratch(x, y) {
-    ctx.globalCompositeOperation = 'destination-out';
-    ctx.beginPath();
-    ctx.arc(x, y, 22, 0, Math.PI * 2);
-    ctx.fill();
-    checkReveal();
-  }
-
-  function checkReveal() {
-    if (revealed) return;
-    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    let transparent = 0;
-    for (let i = 3; i < imgData.data.length; i += 4) {
-      if (imgData.data[i] === 0) transparent++;
-    }
-    const pct = (transparent / (imgData.data.length / 4)) * 100;
-    if (pct > 55) {
-      revealed = true;
-      canvas.style.opacity = '0';
-      canvas.style.pointerEvents = 'none';
-      hint.style.display = 'none';
-      cleared.style.display = 'block';
+  /* ---------- start ---------- */
+  if (!CONNECTED) {
+    $('setup-note').hidden = false; $('login-btn').disabled = true;
+  } else {
+    S.token = readToken();
+    if (S.token) {
+      $('login-btn').disabled = true; $('login-btn').textContent = 'Opening…';
+      api('list').then(function (res) {
+        $('login-btn').disabled = false; $('login-btn').textContent = 'Sign in';
+        if (res.ok) enter();
+        else if (res.error !== 'auth') $('login-error').textContent = res.message || 'Could not open the portal.';
+      });
     }
   }
-
-  canvas.addEventListener('mousedown', e => { isScratching = true; scratch(...Object.values(getPos(e))); });
-  canvas.addEventListener('mousemove', e => { if (isScratching) scratch(...Object.values(getPos(e))); });
-  canvas.addEventListener('mouseup', () => isScratching = false);
-  canvas.addEventListener('touchstart', e => { e.preventDefault(); isScratching = true; const p = getPos(e); scratch(p.x, p.y); }, {passive:false});
-  canvas.addEventListener('touchmove', e => { e.preventDefault(); if (isScratching) { const p = getPos(e); scratch(p.x, p.y); } }, {passive:false});
-  canvas.addEventListener('touchend', () => isScratching = false);
 })();
-
-// ═══ COUNTDOWN TIMER ═══
-function updateTimer() {
-  const target = new Date('2028-11-01T07:00:00');
-  const now = new Date();
-  const diff = target - now;
-
-  if (diff <= 0) {
-    ['days','hours','mins','secs'].forEach(u => document.getElementById('t-'+u+'-num').textContent = '00');
-    return;
-  }
-
-  const days = Math.floor(diff / 86400000);
-  const hours = Math.floor((diff % 86400000) / 3600000);
-  const mins = Math.floor((diff % 3600000) / 60000);
-  const secs = Math.floor((diff % 60000) / 1000);
-
-  const fmt = (n, pad=2) => String(n).padStart(pad, '0');
-
-  const prev = {
-    days: document.getElementById('t-days-num').textContent,
-    secs: document.getElementById('t-secs-num').textContent
-  };
-
-  document.getElementById('t-days-num').textContent = fmt(days, 3);
-  document.getElementById('t-hours-num').textContent = fmt(hours);
-  document.getElementById('t-mins-num').textContent = fmt(mins);
-  document.getElementById('t-secs-num').textContent = fmt(secs);
-
-  // Tick animation on seconds change
-  if (prev.secs !== fmt(secs)) {
-    const el = document.getElementById('t-secs');
-    el.classList.remove('tick');
-    void el.offsetWidth;
-    el.classList.add('tick');
-  }
-}
-
-updateTimer();
-setInterval(updateTimer, 1000);
 </script>
 </body>
 </html>
