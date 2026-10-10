@@ -13,6 +13,7 @@
 :root{
   --snow:#F3F6F8; --paper:#FFFFFF; --deodar:#13343B; --deodar-2:#1F4D56; --ink:#17262B; --mute:#5A6C72;
   --line:#D3DEE2; --glacier:#E4EDF0;
+  --accent:#13343B;
   --booked:#B5362B; --booked-soft:#F6DFDC; --booked-past:#C9A29D;
   --vacant:#DCEEDA; --vacant-past:#EDF1EE; --vacant-ink:#2A6638;
   --brass:#C8962E; --brass-tint:#FBF0D6; --brass-ink:#5C430C;
@@ -64,7 +65,7 @@ input[type=date].in::-webkit-date-and-time-value{text-align:left}
 .btn.danger{background:transparent;border-color:var(--booked);color:var(--booked)}
 .btn.danger.armed{background:var(--booked);color:#fff}
 .btn:disabled{opacity:.55;cursor:default}
-.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:end}
 @media (max-width:349px){.two{grid-template-columns:minmax(0,1fr)}}
 
 /* ---------- app frame ---------- */
@@ -220,6 +221,28 @@ dl.facts dd.plain{font-weight:400}
 .small-note{font-size:14px;color:var(--mute);margin:0 2px 14px}
 textarea.in.tall{min-height:280px;font-size:15.5px;line-height:1.45}
 
+/* ---------- application form ---------- */
+.login-top .org-line{margin:0 0 12px;font-size:14.5px;font-weight:600;line-height:1.35;color:#BFD3D8}
+.form-top{margin:0 2px 8px}
+.form-top .org{font-weight:700;font-size:15px;line-height:1.35;color:var(--ink)}
+.form-top h2{font-family:var(--serif);font-size:24px;font-weight:600;line-height:1.2;margin:6px 0 8px}
+.form-top p{color:var(--mute)}
+h3.sec{font-family:var(--serif);font-size:19px;font-weight:600;line-height:1.25;margin:10px 0 -2px;padding-top:18px;border-top:1px solid var(--line)}
+fieldset.pick{border:0;padding:0;margin:0;min-width:0}
+fieldset.pick legend{padding:0;margin-bottom:6px;font-size:14px;font-weight:600;color:var(--mute)}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.opts.three{grid-template-columns:repeat(3,1fr)}
+.opt{position:relative;display:block}
+.opt input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}
+.opt span{display:grid;place-items:center;min-height:48px;padding:0 8px;border:1.5px solid var(--line);border-radius:10px;background:var(--paper);font-weight:600;text-align:center}
+.opt input:checked + span{background:var(--accent);border-color:var(--accent);color:#fff}
+.opt input:focus-visible + span{outline:3px solid var(--accent);outline-offset:2px}
+.person{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 14px 14px;margin-bottom:10px}
+.person .p-title{font-weight:700;font-size:14px;color:var(--mute)}
+.agree{display:flex;gap:12px;align-items:flex-start;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:15.5px;line-height:1.45}
+.agree input{width:22px;height:22px;flex:none;margin:1px 0 0;accent-color:var(--accent)}
+.ph{flex:none}
+
 /* ---------- requests inbox ---------- */
 .badge{position:absolute;top:5px;left:calc(50% + 7px);min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--booked);color:#fff;font-size:11px;font-weight:700;line-height:18px;text-align:center}
 .l-wide{display:none}
@@ -259,6 +282,7 @@ textarea.in.tall{min-height:280px;font-size:15.5px;line-height:1.45}
 <div id="login">
   <div class="login-side">
     <div class="login-top">
+      <p class="org-line">Defence Geoinformatics Research Establishment, RDC Manali</p>
       <h1>Avalanche Officers' Mess</h1>
       <p>Booking Portal</p>
     </div>
@@ -302,7 +326,7 @@ textarea.in.tall{min-height:280px;font-size:15.5px;line-height:1.45}
 <div id="request" hidden>
   <header class="bar">
     <button class="icon-btn" id="req-back" aria-label="Back to the front page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"/></svg></button>
-    <h1>Booking request<span>Avalanche Officers' Mess</span></h1>
+    <h1>Accommodation request<span>Avalanche Officers' Mess, RDC Manali</span></h1>
   </header>
   <main>
     <div id="req-form-wrap">
@@ -316,20 +340,53 @@ textarea.in.tall{min-height:280px;font-size:15.5px;line-height:1.45}
       </div>
       <div id="req-body" hidden>
         <div class="who" id="req-who" hidden><span id="req-who-text"></span><button class="link" id="req-switch" type="button">Use another account</button></div>
-        <p class="lead">Fill this in to ask for a room. It is a request, not a confirmed booking. The mess will confirm with you.</p>
+        <div class="form-top">
+          <p class="org">Defence Geoinformatics Research Establishment, RDC Manali</p>
+          <h2>Application for reservation of accommodation</h2>
+          <p>Avalanche Officers' Mess. This is a request, not a confirmed booking. The mess will confirm with you.</p>
+        </div>
         <form id="req-form" novalidate autocomplete="off">
-          <label class="f">Your name and rank<input class="in" id="r-ref" maxlength="120" required></label>
-          <label class="f">Your phone number<input class="in" id="r-myphone" type="tel" inputmode="tel" maxlength="40" required></label>
-          <label class="f">Number of guests<input class="in" id="r-count" type="number" inputmode="numeric" min="1" max="40" value="1" required></label>
-          <label class="f">Desired number of rooms<input class="in" id="r-rooms" type="number" inputmode="numeric" min="1" max="20" required></label>
-          <label class="f">Names of guests, with rank or relation<textarea class="in" id="r-names" rows="3" maxlength="300" required placeholder="For example: Maj A. Kumar, Mrs Kumar (wife)"></textarea></label>
-          <label class="f"><span>Mobile number of primary guest <small>(optional)</small></span><input class="in" id="r-phone" type="tel" inputmode="tel" maxlength="40"></label>
+          <h3 class="sec">Particulars of the applicant</h3>
+          <label class="f">Name of applicant<input class="in" id="r-ref" maxlength="120" required></label>
+          <label class="f">Designation<input class="in" id="r-desig" maxlength="120" required></label>
+          <label class="f">Mobile number<input class="in" id="r-myphone" type="tel" inputmode="tel" maxlength="40" required></label>
+          <label class="f">Name of the lab or establishment<input class="in" id="r-lab" maxlength="160" required></label>
+          <fieldset class="pick"><legend>Working or retired</legend><div class="opts">
+            <label class="opt"><input type="radio" name="r-status" value="Working"><span>Working</span></label>
+            <label class="opt"><input type="radio" name="r-status" value="Retired"><span>Retired</span></label>
+          </div></fieldset>
+          <fieldset class="pick"><legend>Purpose of visit</legend><div class="opts">
+            <label class="opt"><input type="radio" name="r-purpose" value="Official"><span>Official</span></label>
+            <label class="opt"><input type="radio" name="r-purpose" value="Personal"><span>Personal</span></label>
+          </div></fieldset>
+
+          <h3 class="sec">Accommodation</h3>
+          <div class="two">
+            <label class="f">Number of rooms required<input class="in" id="r-rooms" type="number" inputmode="numeric" min="1" max="20" required></label>
+            <label class="f">Number of guests<input class="in" id="r-count" type="number" inputmode="numeric" min="1" max="20" value="1" required></label>
+          </div>
+          <p class="small-note" style="margin:-6px 2px 0">For guests, count everyone who will stay, including yourself if you are staying.</p>
           <div class="two">
             <label class="f">Check-in<input class="in" type="date" id="r-in" required></label>
             <label class="f">Check-out<input class="in" type="date" id="r-out" required></label>
           </div>
           <div class="stay idle" id="r-stay" role="status"></div>
-          <label class="f"><span>Anything else the mess should know <small>(optional)</small></span><textarea class="in" id="r-info" rows="2" maxlength="500"></textarea></label>
+          <fieldset class="pick"><legend>Accommodation required for (tick all that apply)</legend><div class="opts three">
+            <label class="opt"><input type="checkbox" id="r-self"><span>Self</span></label>
+            <label class="opt"><input type="checkbox" id="r-family"><span>Family</span></label>
+            <label class="opt"><input type="checkbox" id="r-guests"><span>Guests</span></label>
+          </div></fieldset>
+
+          <div id="r-people-wrap" hidden>
+            <h3 class="sec" style="margin-bottom:8px">Particulars of the family or guests</h3>
+            <p class="small-note" id="r-people-note"></p>
+            <div id="r-people"></div>
+          </div>
+
+          <h3 class="sec">Declaration</h3>
+          <label class="agree"><input type="checkbox" id="r-cert1"><span>I certify that the particulars given above are correct.</span></label>
+          <label class="agree"><input type="checkbox" id="r-cert2"><span>I shall be responsible for the behaviour / conduct and payment of the room rent and all other related charges, in case the same are not paid by me / my family / my guests.</span></label>
+
           <label class="f" id="r-code-wrap" hidden>Request code from the mess<input class="in" id="r-code" maxlength="60"></label>
           <div class="hp" aria-hidden="true"><label>Website<input id="r-website" tabindex="-1" autocomplete="off"></label></div>
           <div class="error" id="r-error" role="alert"></div>
@@ -953,7 +1010,7 @@ textarea.in.tall{min-height:280px;font-size:15.5px;line-height:1.45}
     var a = $('r-in').value, c = $('r-out').value, el = $('r-stay');
     if (!a || !c) { el.className = 'stay idle'; el.textContent = 'Choose the check-in and check-out dates.'; return false; }
     if (c <= a) { el.className = 'stay bad'; el.textContent = 'Check-out must be after check-in.'; return false; }
-    el.className = 'stay idle'; el.textContent = nightsText(nights(a, c)) + ', ' + short(a) + ' to ' + short(c) + '.';
+    el.className = 'stay'; el.textContent = 'Duration: ' + nightsText(nights(a, c)) + ', ' + short(a) + ' to ' + short(c) + '.';
     return true;
   }
   $('r-in').addEventListener('change', function () {
@@ -963,20 +1020,64 @@ textarea.in.tall{min-height:280px;font-size:15.5px;line-height:1.45}
   $('req-back').addEventListener('click', function () {
     history.pushState('', document.title, location.pathname + location.search); route();
   });
+  /* one set of particulars for each person other than the applicant */
+  function peopleNeeded() {
+    if (!$('r-family').checked && !$('r-guests').checked) return 0;
+    var n = (parseInt($('r-count').value, 10) || 0) - ($('r-self').checked ? 1 : 0);
+    return Math.max(1, Math.min(20, n));
+  }
+  function readPeople() {
+    return Array.prototype.map.call($('r-people').querySelectorAll('.person'), function (el) {
+      return { name: el.querySelector('.p-name').value.trim(), contact: el.querySelector('.p-contact').value.trim(), address: el.querySelector('.p-addr').value.trim() };
+    });
+  }
+  function drawPeople() {
+    var n = peopleNeeded(), old = readPeople(), h = '';
+    $('r-people-wrap').hidden = n === 0;
+    for (var i = 0; i < n; i++) {
+      var o = old[i] || { name: '', contact: '', address: '' }, opt = ' <small>(optional)</small>';
+      h += '<div class="person"><p class="p-title">' + (n === 1 ? 'Family member or guest' : 'Person ' + (i + 1) + ' of ' + n) + '</p>' +
+        '<label class="f">Name, with rank or relationship<input class="in p-name" maxlength="120" value="' + esc(o.name) + '"></label>' +
+        '<label class="f"><span>Contact number' + opt + '</span><input class="in p-contact" type="tel" inputmode="tel" maxlength="40" value="' + esc(o.contact) + '"></label>' +
+        '<label class="f"><span>Address' + opt + '</span><input class="in p-addr" maxlength="200" value="' + esc(o.address) + '"></label></div>';
+    }
+    $('r-people').innerHTML = h;
+    $('r-people-note').textContent = n === 0 ? '' : (n === 1 ? 'One entry' : n + ' entries') + ', from the number of guests' + ($('r-self').checked ? ' less yourself.' : '.');
+  }
+  ['r-count', 'r-self', 'r-family', 'r-guests'].forEach(function (id) { $(id).addEventListener('change', drawPeople); });
+  $('r-count').addEventListener('input', drawPeople);
+  function picked(name) { var el = document.querySelector('input[name="' + name + '"]:checked'); return el ? el.value : ''; }
+
   $('req-form').addEventListener('submit', function (e) {
     e.preventDefault();
     var err = $('r-error');
-    function need(id, msg) { err.textContent = msg; $(id).focus(); }
+    function need(target, msg) { err.textContent = msg; var el = typeof target === 'string' ? $(target) : target; if (el) { el.focus(); el.scrollIntoView({ block: 'center' }); } }
+    var people = readPeople();
     var sent = {
-      referredBy: $('r-ref').value.trim(), refPhone: $('r-myphone').value.trim(), guests: parseInt($('r-count').value, 10), rooms: parseInt($('r-rooms').value, 10), names: $('r-names').value.trim(),
-      phone: $('r-phone').value.trim(), checkIn: $('r-in').value, checkOut: $('r-out').value, info: $('r-info').value.trim()
+      referredBy: $('r-ref').value.trim(), designation: $('r-desig').value.trim(), refPhone: $('r-myphone').value.trim(), lab: $('r-lab').value.trim(),
+      workStatus: picked('r-status'), purpose: picked('r-purpose'),
+      rooms: parseInt($('r-rooms').value, 10), guests: parseInt($('r-count').value, 10), checkIn: $('r-in').value, checkOut: $('r-out').value,
+      forSelf: $('r-self').checked, forFamily: $('r-family').checked, forGuests: $('r-guests').checked,
+      people: people, certified: $('r-cert1').checked && $('r-cert2').checked
     };
-    if (!sent.referredBy) return need('r-ref', 'Enter your name and rank.');
-    if (sent.refPhone.replace(/\D/g, '').length < 7) return need('r-myphone', 'Enter your phone number.');
-    if (!(sent.guests >= 1 && sent.guests <= 40)) return need('r-count', 'Enter the number of guests.');
-    if (!(sent.rooms >= 1 && sent.rooms <= 20)) return need('r-rooms', 'Enter the number of rooms you would like.');
-    if (!sent.names) return need('r-names', 'Enter the names of the guests.');
+    var others = sent.forFamily || sent.forGuests;
+    if (!sent.referredBy) return need('r-ref', 'Enter the name of the applicant.');
+    if (!sent.designation) return need('r-desig', 'Enter your designation.');
+    if (sent.refPhone.replace(/\D/g, '').length < 7) return need('r-myphone', 'Enter your mobile number.');
+    if (!sent.lab) return need('r-lab', 'Enter the name of your lab or establishment.');
+    if (!sent.workStatus) return need(document.querySelector('input[name="r-status"]'), 'Choose Working or Retired.');
+    if (!sent.purpose) return need(document.querySelector('input[name="r-purpose"]'), 'Choose the purpose of visit.');
+    if (!(sent.rooms >= 1 && sent.rooms <= 20)) return need('r-rooms', 'Enter the number of rooms required.');
+    if (!(sent.guests >= 1 && sent.guests <= 20)) return need('r-count', 'Enter the number of guests, from 1 to 20.');
     if (!stayLine()) return need(sent.checkIn ? 'r-out' : 'r-in', $('r-stay').textContent);
+    if (!sent.forSelf && !others) return need('r-self', 'Choose who the accommodation is for.');
+    if (!others && sent.guests !== 1) return need('r-count', 'You ticked Self only. Tick Family or Guests as well, or change the number of guests to 1.');
+    if (others && sent.forSelf && sent.guests < 2) return need('r-count', 'The number of guests should count you and your family or guests, so it must be at least 2.');
+    if (others) {
+      var cards = $('r-people').querySelectorAll('.person');
+      for (var i = 0; i < people.length; i++) if (!people[i].name) return need(cards[i].querySelector('.p-name'), 'Enter the name of each family member or guest.');
+    } else sent.people = [];
+    if (!sent.certified) return need($('r-cert1').checked ? 'r-cert2' : 'r-cert1', 'Tick both declarations to send the request.');
     if (!$('r-code-wrap').hidden && !$('r-code').value.trim()) return need('r-code', 'Enter the request code given to you by the mess.');
     err.textContent = '';
     var btn = $('r-send'); btn.disabled = true; btn.textContent = 'Sending…';
@@ -992,18 +1093,22 @@ textarea.in.tall{min-height:280px;font-size:15.5px;line-height:1.45}
     });
   });
   function showDone(ref, r, email) {
+    var staying = (r.forSelf ? [r.referredBy] : []).concat(r.people.map(function (p) { return p.name; })).join(', ');
     $('req-done').innerHTML = '<h2>Request sent</h2><p>The mess has your request and will confirm with you' + (email ? ' by email at ' + esc(email) : '') + '. Nothing is booked until they do.</p>' +
       '<p class="ref">Reference <b>' + esc(ref) + '</b></p><dl class="facts">' +
-      '<div><dt>Guests</dt><dd class="plain">' + esc(r.names) + ' (' + r.guests + ')</dd></div>' +
+      '<div><dt>Applicant</dt><dd class="plain">' + esc(r.referredBy) + '</dd></div>' +
+      '<div><dt>Staying</dt><dd class="plain">' + esc(staying) + ' (' + r.guests + ')</dd></div>' +
       '<div><dt>Rooms</dt><dd class="plain">' + r.rooms + '</dd></div>' +
       '<div><dt>Check-in</dt><dd>' + long(r.checkIn) + '</dd></div>' +
-      '<div><dt>Check-out</dt><dd>' + long(r.checkOut) + '</dd></div>' +
-      '<div><dt>Requested by</dt><dd class="plain">' + esc(r.referredBy) + '</dd></div></dl>' +
+      '<div><dt>Check-out</dt><dd>' + long(r.checkOut) + ' <span style="font-weight:400">(' + nightsText(nights(r.checkIn, r.checkOut)) + ')</span></dd></div></dl>' +
       '<div class="actions" style="margin-top:18px"><button class="btn ghost" id="done-home" type="button">Back to start</button><button class="btn" id="done-more" type="button">Send another</button></div>';
     $('req-form-wrap').hidden = true; $('req-done').hidden = false; window.scrollTo(0, 0);
-    function reset() {
-      ['r-names', 'r-rooms', 'r-phone', 'r-in', 'r-out', 'r-info'].forEach(function (id) { $(id).value = ''; });
-      $('r-count').value = 1; $('req-done').hidden = true; $('req-form-wrap').hidden = false; stayLine();
+    function reset() {                                    // the applicant's own particulars are kept for the next request
+      ['r-rooms', 'r-in', 'r-out'].forEach(function (id) { $(id).value = ''; });
+      ['r-self', 'r-family', 'r-guests', 'r-cert1', 'r-cert2'].forEach(function (id) { $(id).checked = false; });
+      Array.prototype.forEach.call(document.querySelectorAll('input[name="r-purpose"]'), function (el) { el.checked = false; });
+      $('r-count').value = 1; $('r-people').innerHTML = ''; drawPeople();
+      $('req-done').hidden = true; $('req-form-wrap').hidden = false; stayLine();
     }
     $('done-more').addEventListener('click', function () { reset(); window.scrollTo(0, 0); });
     $('done-home').addEventListener('click', function () { reset(); $('req-back').click(); });
@@ -1043,21 +1148,30 @@ textarea.in.tall{min-height:280px;font-size:15.5px;line-height:1.45}
     var free = S.rooms.filter(function (room) { return !clashes(room, r.checkIn, r.checkOut, null).length; });
     var linked = r.bookingIds.map(byId).filter(Boolean);
     var tag = { Pending: ['brass', 'Waiting'], Accepted: ['free', 'Accepted'], Declined: ['done', 'Declined'] }[r.status];
+    var people = r.people || [];
     function phoneRow(label, number) {
       return '<div><dt>' + label + '</dt><dd class="plain">' + (number ? '<button class="reveal" data-ph="' + esc(number) + '">Show number</button>' : 'Not given') + '</dd></div>';
     }
     var html = '<div class="sheet-head"><h2>' + esc(r.names) + '</h2><button class="close" aria-label="Close">' + X + '</button></div><dl class="facts">' +
-      '<div><dt>Referred by</dt><dd>' + esc(r.referredBy) + '</dd></div>' +
-      phoneRow('Their phone', r.refPhone) +
-      '<div><dt>Their email</dt><dd class="plain">' + (esc(r.email) || 'Not given') + '</dd></div>' +
-      '<div><dt>Guests</dt><dd class="plain">' + r.guests + '</dd></div>' +
+      '<div><dt>Applicant</dt><dd>' + esc(r.referredBy) + '</dd></div>' +
+      (r.designation ? '<div><dt>Designation</dt><dd class="plain">' + esc(r.designation) + '</dd></div>' : '') +
+      (r.lab ? '<div><dt>Lab</dt><dd class="plain">' + esc(r.lab) + (r.workStatus ? ' (' + esc(r.workStatus) + ')' : '') + '</dd></div>' : '') +
+      phoneRow('Mobile', r.refPhone) +
+      '<div><dt>Email</dt><dd class="plain">' + (esc(r.email) || 'Not given') + '</dd></div>' +
+      (r.purpose ? '<div><dt>Purpose</dt><dd class="plain">' + esc(r.purpose) + '</dd></div>' : '') +
+      (r.accFor ? '<div><dt>Staying</dt><dd class="plain">' + esc(r.accFor) + '</dd></div>' : '') +
       '<div><dt>Rooms wanted</dt><dd' + (r.rooms ? '>' + r.rooms : ' class="plain">Not given') + '</dd></div>' +
+      '<div><dt>Guests</dt><dd class="plain">' + r.guests + '</dd></div>' +
       '<div><dt>Check-in</dt><dd>' + long(r.checkIn) + '</dd></div>' +
       '<div><dt>Check-out</dt><dd>' + long(r.checkOut) + '</dd></div>' +
       '<div><dt>Stay</dt><dd class="plain">' + nightsText(nights(r.checkIn, r.checkOut)) + ' <span class="tag ' + tag[0] + '" style="margin-left:8px">' + tag[1] + '</span></dd></div>' +
-      phoneRow('Guest phone', r.phone) +
-      '<div><dt>Other details</dt><dd class="plain">' + (esc(r.info) || 'None') + '</dd></div>' +
+      (people.length ? '' : phoneRow('Guest phone', r.phone)) +
+      (r.info ? '<div><dt>Other details</dt><dd class="plain">' + esc(r.info) + '</dd></div>' : '') +
       '<div><dt>Received</dt><dd class="plain">' + esc(r.received) + '</dd></div></dl>';
+    if (people.length) html += '<p class="sub-head">Family or guests</p><div class="rows">' + people.map(function (p) {
+      return '<div class="row"><span class="mid"><b>' + esc(p.name) + '</b>' + (p.address ? '<small>' + esc(p.address) + '</small>' : '') + '</span>' +
+        (p.contact ? '<span class="ph"><button class="reveal" data-ph="' + esc(p.contact) + '">Show number</button></span>' : '') + '</div>';
+    }).join('') + '</div>';
     if (r.status === 'Accepted') {
       html += linked.length ? '<p class="sub-head">Booked for this request' + (r.rooms ? ' (' + linked.length + ' of ' + roomsText(r.rooms) + ' wanted)' : '') + '</p><div class="rows">' + linked.map(function (b) {
         return '<button class="row" data-id="' + esc(b.id) + '"><span class="fob">' + esc(b.room) + '</span><span class="mid"><b>' + esc(b.name) + '</b><small>' +
@@ -1085,8 +1199,10 @@ textarea.in.tall{min-height:280px;font-size:15.5px;line-height:1.45}
       el.addEventListener('click', function () { openDetail(el.dataset.id); });
     });
     $('rq-accept').addEventListener('click', function () {
-      openForm({ requestId: r.id, name: r.names, referredBy: r.referredBy, phone: r.phone, email: r.email, checkIn: r.checkIn, checkOut: r.checkOut,
-        remarks: guestsText(r.guests) + (r.rooms ? ', ' + roomsText(r.rooms) + ' wanted' : '') + (r.info ? '. ' + r.info : '') + (r.refPhone ? '. Referrer phone ' + r.refPhone : '') });
+      openForm({ requestId: r.id, name: r.names, referredBy: /Self/.test(r.accFor || '') ? '' : r.referredBy, phone: r.phone || r.refPhone, email: r.email,
+        checkIn: r.checkIn, checkOut: r.checkOut,
+        remarks: guestsText(r.guests) + (r.rooms ? ', ' + roomsText(r.rooms) + ' wanted' : '') + (r.purpose ? '. ' + r.purpose + ' visit' : '') +
+          (r.designation ? '. Applicant ' + r.referredBy + ', ' + r.designation + (r.lab ? ', ' + r.lab : '') : '') + (r.info ? '. ' + r.info : '') + (r.refPhone ? '. Mobile ' + r.refPhone : '') });
     });
     var mail = $('rq-mail');
     if (mail) mail.addEventListener('click', function () {
