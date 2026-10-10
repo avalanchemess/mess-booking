@@ -100,7 +100,9 @@ main{padding:14px 14px 90px}
 .step{width:44px;height:44px;border:1.5px solid var(--line);border-radius:10px;background:var(--paper);display:grid;place-items:center}
 .step svg{width:20px;height:20px}
 .pill{height:44px;padding:0 14px;border:1.5px solid var(--line);border-radius:10px;background:var(--paper);font-weight:600;font-size:14px}
-.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:var(--mute);margin:0 2px 10px}
+.legend{display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px;font-size:13px;color:var(--mute);margin:0 2px 10px}
+.export-btn{margin-left:auto;display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 12px;border:1.5px solid var(--line);border-radius:9px;background:var(--paper);font-weight:600;font-size:13.5px;color:var(--ink)}
+.export-btn svg{width:17px;height:17px}
 .legend i{display:inline-block;width:14px;height:14px;border-radius:4px;margin-right:6px;vertical-align:-2px}
 .chart-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -14px;padding:0 14px 6px 0;scrollbar-width:thin}
 table.chart{border-collapse:separate;border-spacing:2px;table-layout:fixed;width:calc(var(--rw) + var(--days) * (var(--cw) + 2px));min-width:100%}
@@ -121,7 +123,9 @@ table.chart{border-collapse:separate;border-spacing:2px;table-layout:fixed;width
 .chart td.vac:active{filter:brightness(.93)}
 .chart td.bk{background:var(--booked);color:#fff;border-radius:6px;cursor:pointer;padding:0 6px;font-size:12.5px;font-weight:600;line-height:1.15;text-align:left;overflow:hidden}
 .chart td.bk.gone{background:var(--booked-past)}
-.chart td.bk span{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere}
+.chart td.bk .nm{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere}
+.chart td.bk .rf{display:block;margin-top:2px;font-weight:400;font-size:10.5px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.92}
+.chart td.bk.one .rf{font-size:9.5px}
 .chart td.bk.one{padding:0 3px;text-align:center;font-size:11px}
 .chart td.bk.from-prev{border-top-left-radius:0;border-bottom-left-radius:0}
 .chart td.bk.to-next{border-top-right-radius:0;border-bottom-right-radius:0}
@@ -209,6 +213,12 @@ dl.facts dd.plain{font-weight:400}
 .done-card .ref{margin-top:14px;color:var(--ink)}
 .done-card .ref b{font-family:var(--serif);font-size:24px;letter-spacing:.08em}
 .done-card dl.facts{margin:16px 0 0}
+.g-wrap{margin-top:18px;min-height:46px}
+.who{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--glacier);border-radius:10px;padding:10px 12px;font-size:14.5px;margin-bottom:16px}
+.who span{flex:1;min-width:0;overflow-wrap:anywhere}
+.link{border:0;background:transparent;color:var(--deodar-2);font-weight:600;text-decoration:underline;padding:4px 0}
+.small-note{font-size:14px;color:var(--mute);margin:0 2px 14px}
+textarea.in.tall{min-height:280px;font-size:15.5px;line-height:1.45}
 
 /* ---------- requests inbox ---------- */
 .badge{position:absolute;top:5px;left:calc(50% + 7px);min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--booked);color:#fff;font-size:11px;font-weight:700;line-height:18px;text-align:center}
@@ -265,11 +275,11 @@ dl.facts dd.plain{font-weight:400}
       <div class="choose" id="choose">
         <button class="choice main" id="go-request" type="button">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3h8l4 4v14H7z"/><path d="M15 3v4h4M10 12h6M10 16h6"/></svg>
-          <span><b>Booking Request</b><small>Request for a room</small></span>
+          <span><b>Booking Request</b><small>Ask the mess for a room for your guests</small></span>
         </button>
         <button class="choice" id="go-admin" type="button">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
-          <span><b>Admin</b><small>Mess staff sign in </small></span>
+          <span><b>Admin</b><small>Mess staff sign in with the password</small></span>
         </button>
       </div>
       <form id="login-form" autocomplete="off" hidden>
@@ -296,23 +306,36 @@ dl.facts dd.plain{font-weight:400}
   </header>
   <main>
     <div id="req-form-wrap">
-      <p class="lead">Fill this in to ask for a room. It is a request, not a confirmed booking. The mess will confirm with you.</p>
-      <form id="req-form" novalidate autocomplete="off">
-        <label class="f">Your name and rank<input class="in" id="r-ref" maxlength="120" required></label>
-        <label class="f">Number of guests<input class="in" id="r-count" type="number" inputmode="numeric" min="1" max="40" value="1" required></label>
-        <label class="f">Names of guests, with rank or relation<textarea class="in" id="r-names" rows="3" maxlength="300" required placeholder="For example: Maj A. Kumar, Mrs Kumar (wife)"></textarea></label>
-        <label class="f"><span>Mobile number of primary guest <small>(optional)</small></span><input class="in" id="r-phone" type="tel" inputmode="tel" maxlength="40"></label>
-        <div class="two">
-          <label class="f">Check-in<input class="in" type="date" id="r-in" required></label>
-          <label class="f">Check-out<input class="in" type="date" id="r-out" required></label>
-        </div>
-        <div class="stay idle" id="r-stay" role="status"></div>
-        <label class="f"><span>Anything else the mess should know <small>(optional)</small></span><textarea class="in" id="r-info" rows="2" maxlength="500"></textarea></label>
-        <label class="f" id="r-code-wrap" hidden>Request code from the mess<input class="in" id="r-code" maxlength="60"></label>
-        <div class="hp" aria-hidden="true"><label>Website<input id="r-website" tabindex="-1" autocomplete="off"></label></div>
-        <div class="error" id="r-error" role="alert"></div>
-        <button class="btn" id="r-send" type="submit">Send request</button>
-      </form>
+      <p class="lead" id="req-loading">Opening the form…</p>
+      <div class="done-card" id="req-signin" hidden>
+        <h2>Sign in to send a request</h2>
+        <p>The mess uses your Google account to email your confirmation and to keep out spam. Only your name and email address are read.</p>
+        <div class="g-wrap" id="g-btn"></div>
+        <div class="error" id="g-error" role="alert"></div>
+        <p style="font-size:14px">If the button does not respond, open this page in Chrome or Safari.</p>
+      </div>
+      <div id="req-body" hidden>
+        <div class="who" id="req-who" hidden><span id="req-who-text"></span><button class="link" id="req-switch" type="button">Use another account</button></div>
+        <p class="lead">Fill this in to ask for a room. It is a request, not a confirmed booking. The mess will confirm with you.</p>
+        <form id="req-form" novalidate autocomplete="off">
+          <label class="f">Your name and rank<input class="in" id="r-ref" maxlength="120" required></label>
+          <label class="f">Your phone number<input class="in" id="r-myphone" type="tel" inputmode="tel" maxlength="40" required></label>
+          <label class="f">Number of guests<input class="in" id="r-count" type="number" inputmode="numeric" min="1" max="40" value="1" required></label>
+          <label class="f">Desired number of rooms<input class="in" id="r-rooms" type="number" inputmode="numeric" min="1" max="20" required></label>
+          <label class="f">Names of guests, with rank or relation<textarea class="in" id="r-names" rows="3" maxlength="300" required placeholder="For example: Maj A. Kumar, Mrs Kumar (wife)"></textarea></label>
+          <label class="f"><span>Mobile number of primary guest <small>(optional)</small></span><input class="in" id="r-phone" type="tel" inputmode="tel" maxlength="40"></label>
+          <div class="two">
+            <label class="f">Check-in<input class="in" type="date" id="r-in" required></label>
+            <label class="f">Check-out<input class="in" type="date" id="r-out" required></label>
+          </div>
+          <div class="stay idle" id="r-stay" role="status"></div>
+          <label class="f"><span>Anything else the mess should know <small>(optional)</small></span><textarea class="in" id="r-info" rows="2" maxlength="500"></textarea></label>
+          <label class="f" id="r-code-wrap" hidden>Request code from the mess<input class="in" id="r-code" maxlength="60"></label>
+          <div class="hp" aria-hidden="true"><label>Website<input id="r-website" tabindex="-1" autocomplete="off"></label></div>
+          <div class="error" id="r-error" role="alert"></div>
+          <button class="btn" id="r-send" type="submit">Send request</button>
+        </form>
+      </div>
     </div>
     <div class="done-card" id="req-done" hidden></div>
   </main>
@@ -346,7 +369,7 @@ dl.facts dd.plain{font-weight:400}
         <button class="pill" id="this-month">Today</button>
         <button class="step" id="next" aria-label="Next month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></button>
       </div>
-      <div class="legend"><span><i style="background:var(--vacant)"></i>Vacant</span><span><i style="background:var(--booked)"></i>Booked</span><span><i style="background:var(--brass)"></i>Today</span></div>
+      <div class="legend"><span><i style="background:var(--vacant)"></i>Vacant</span><span><i style="background:var(--booked)"></i>Booked</span><span><i style="background:var(--brass)"></i>Today</span><button class="export-btn" id="export" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 19h14"/></svg>Export PDF</button></div>
       <div class="chart-scroll" id="chart-scroll"></div>
       <p class="hint">Tap a green square to book that room from that day. Tap a red bar to see the guest.</p>
     </section>
@@ -575,7 +598,8 @@ dl.facts dd.plain{font-weight:400}
           var cls = 'bk' + (b.checkOut <= t ? ' gone' : '') + (span === 1 ? ' one' : '') +
             (b.checkIn < first && d === 1 ? ' from-prev' : '') + (b.checkOut > afterLast ? ' to-next' : '');
           h += '<td class="' + cls + '" colspan="' + span + '" data-id="' + esc(b.id) + '" tabindex="0" role="button" aria-label="' +
-            esc(room + ', ' + b.name + ', ' + short(b.checkIn) + ' to ' + short(b.checkOut)) + '"><span>' + esc(b.name || 'Booked') + '</span></td>';
+            esc(room + ', ' + b.name + ', ' + short(b.checkIn) + ' to ' + short(b.checkOut) + (b.referredBy ? ', referred by ' + b.referredBy : '')) + '"><span class="nm">' + esc(b.name || 'Booked') + '</span>' +
+            (b.referredBy ? '<small class="rf">' + esc(b.referredBy) + '</small>' : '') + '</td>';
           d += span;
         } else {
           free[d]++;
@@ -735,8 +759,24 @@ dl.facts dd.plain{font-weight:400}
       '<div><dt>Stay</dt><dd class="plain">' + nightsText(n) + ' <span class="tag ' + st.cls + '" style="margin-left:8px">' + st.text + '</span></dd></div>' +
       '<div><dt>Referred by</dt><dd class="plain">' + (esc(b.referredBy) || 'Not given') + '</dd></div>' +
       '<div><dt>Phone</dt><dd class="plain" id="phone-slot">' + (b.phone ? '<button class="reveal" id="reveal">Show number</button>' : 'Not given') + '</dd></div>' +
+      '<div><dt>Email</dt><dd class="plain">' + (esc(b.email) || 'Not given') + '</dd></div>' +
       '<div><dt>Remarks</dt><dd class="plain">' + (esc(b.remarks) || 'None') + '</dd></div>' +
-      '</dl><div class="actions"><button class="btn danger" id="del">Delete booking</button><button class="btn" id="edit">Change booking</button></div>');
+      '</dl>' + (b.mailed ? '<p class="small-note">Confirmation emailed on ' + esc(b.mailed) + '.</p>' : '') +
+      '<div class="actions single" style="margin-bottom:12px">' + (b.email
+        ? '<button class="btn" id="bk-mail">' + (b.mailed ? 'Email the confirmation again' : 'Email the confirmation') + '</button>'
+        : '<button class="btn ghost" id="bk-addmail">Add an email to send a confirmation</button>') + '</div>' +
+      '<div class="actions"><button class="btn danger" id="del">Delete booking</button><button class="btn ghost" id="edit">Change booking</button></div>');
+    var bm = $('bk-mail');
+    if (bm) bm.addEventListener('click', function () {
+      var label = bm.textContent; bm.disabled = true; bm.textContent = 'Preparing the email…';
+      api('draft', { bookingId: b.id }).then(function (res) {
+        if (res.ok) { openMail({ bookingId: b.id }, res); return; }
+        bm.disabled = false; bm.textContent = label;
+        if (res.error !== 'auth') toast(res.message || 'Could not prepare the email.', true);
+      });
+    });
+    var am = $('bk-addmail');
+    if (am) am.addEventListener('click', function () { openForm(b); $('f-email').focus(); });
     var rv = $('reveal');
     if (rv) rv.addEventListener('click', function () {
       $('phone-slot').innerHTML = '<b>' + esc(b.phone) + '</b><a class="call" href="tel:' + esc(b.phone.replace(/[^+\d]/g, '')) + '">Call</a>';
@@ -774,6 +814,7 @@ dl.facts dd.plain{font-weight:400}
       '<div class="stay idle" id="f-stay" role="status"></div>' +
       '<label class="f"><span>Referred by <small>(optional)</small></span><input class="in" id="f-ref" maxlength="120" value="' + esc(b.referredBy) + '"></label>' +
       '<label class="f"><span>Phone <small>(optional)</small></span><input class="in" id="f-phone" type="tel" inputmode="tel" maxlength="40" autocomplete="off" value="' + esc(b.phone) + '"></label>' +
+      '<label class="f"><span>Email for the confirmation <small>(optional)</small></span><input class="in" id="f-email" type="email" inputmode="email" maxlength="120" autocomplete="off" autocapitalize="off" value="' + esc(b.email) + '"></label>' +
       '<label class="f"><span>Remarks <small>(optional)</small></span><textarea class="in" id="f-rem" rows="2" maxlength="500">' + esc(b.remarks) + '</textarea></label>' +
       '<div class="actions single"><button class="btn" id="f-save" type="submit">' + saveLabel + '</button></div></form>');
 
@@ -815,14 +856,18 @@ dl.facts dd.plain{font-weight:400}
       if (!$('f-room').value) { toast('Choose a room.', true); $('f-room').focus(); return; }
       if (!name) { toast('Enter the occupant name.', true); $('f-name').focus(); return; }
       if (!check()) { $('f-stay').scrollIntoView({ block: 'center' }); return; }
+      var mailTo = $('f-email').value.trim();
+      if (mailTo && !/^[^\s@<>,;]+@[^\s@<>,;]+\.[^\s@<>,;]+$/.test(mailTo)) { toast('That email address does not look right.', true); $('f-email').focus(); return; }
       var save = $('f-save'); save.disabled = true; save.textContent = 'Saving…';
       api(b.requestId ? 'accept' : 'save', { requestId: b.requestId || '', booking: {
         id: b.id || '', room: $('f-room').value, name: name, checkIn: $('f-in').value, checkOut: $('f-out').value,
-        referredBy: $('f-ref').value.trim(), phone: $('f-phone').value.trim(), remarks: $('f-rem').value.trim()
+        referredBy: $('f-ref').value.trim(), phone: $('f-phone').value.trim(), remarks: $('f-rem').value.trim(), email: mailTo
       } }).then(function (res) {
         if (res.ok) {
           var p = $('f-in').value.split('-'); if (S.view === 'chart') { S.y = +p[0]; S.m = +p[1]; }
           closeSheet(); render(); toast(b.requestId ? 'Request accepted and booked' : 'Booking saved');
+          if (b.requestId && (reqById(b.requestId) || {}).email) openReq(b.requestId);
+          else if (!b.requestId && mailTo && !(byId(res.id) || {}).mailed) openDetail(res.id);       // straight to the "Email the confirmation" button
           return;
         }
         if (res.error === 'auth') return;
@@ -835,15 +880,75 @@ dl.facts dd.plain{font-weight:400}
   $('new').addEventListener('click', function () { openForm({}); });
 
   /* ---------- booking request form (open to everyone) ---------- */
-  var infoAsked = false;
+  var G = { asked: false, clientId: '', cred: '', email: '', name: '' };
+  var GKEY = 'aom-google';
   function openRequestScreen() {
     $('r-in').min = today();
     stayLine();
-    if (!infoAsked && CONNECTED) {
-      infoAsked = true;
-      api('info').then(function (res) { if (res.ok && res.codeNeeded) $('r-code-wrap').hidden = false; });
-    }
+    if (G.asked) { showRequestState(); return; }
+    G.asked = true;
+    api('info').then(function (res) {
+      if (res.ok && res.codeNeeded) $('r-code-wrap').hidden = false;
+      if (res.ok && res.clientId) {
+        G.clientId = res.clientId;
+        try {
+          var kept = JSON.parse(sessionStorage.getItem(GKEY) || 'null');
+          if (kept && kept.exp * 1000 > Date.now() + 120000) useCredential(kept.cred);
+        } catch (e) {}
+      }
+      $('req-loading').hidden = true;
+      showRequestState();
+    });
   }
+  function showRequestState() {
+    if (!$('req-loading').hidden) return;
+    var need = !!G.clientId && !G.cred;
+    $('req-signin').hidden = !need; $('req-body').hidden = need;
+    $('req-who').hidden = !(G.clientId && G.cred);
+    $('req-who-text').textContent = 'Signed in as ' + (G.name ? G.name + ', ' : '') + G.email;
+    if (need) loadGoogle();
+  }
+  function readJwt(cred) {
+    try {
+      var part = cred.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      return JSON.parse(decodeURIComponent(escape(atob(part))));
+    } catch (e) { return null; }
+  }
+  function useCredential(cred) {
+    var p = readJwt(cred); if (!p || !p.email) return false;
+    G.cred = cred; G.email = p.email; G.name = p.name || '';
+    try { sessionStorage.setItem(GKEY, JSON.stringify({ cred: cred, exp: p.exp })); } catch (e) {}
+    return true;
+  }
+  function dropCredential() {
+    G.cred = ''; G.email = ''; G.name = '';
+    try { sessionStorage.removeItem(GKEY); } catch (e) {}
+  }
+  function loadGoogle() {
+    function draw() {
+      try {
+        google.accounts.id.initialize({ client_id: G.clientId, callback: function (resp) {
+          if (resp && resp.credential && useCredential(resp.credential)) { $('g-error').textContent = ''; showRequestState(); }
+          else $('g-error').textContent = 'Google sign-in did not finish. Please try again.';
+        } });
+        $('g-btn').innerHTML = '';
+        google.accounts.id.renderButton($('g-btn'), { theme: 'filled_blue', size: 'large', shape: 'pill', text: 'signin_with',
+          width: Math.max(200, Math.min(340, $('g-btn').offsetWidth || 300)) });
+      } catch (e) { $('g-error').textContent = 'Google sign-in could not start. Reload the page and try again.'; }
+    }
+    if (window.google && google.accounts && google.accounts.id) { draw(); return; }
+    if (document.getElementById('gsi-script')) return;
+    var sc = document.createElement('script');
+    sc.id = 'gsi-script'; sc.src = 'https://accounts.google.com/gsi/client'; sc.async = true;
+    sc.onload = draw;
+    sc.onerror = function () { sc.remove(); $('g-error').textContent = 'Google sign-in could not load. Check your connection, then reload the page.'; };
+    document.head.appendChild(sc);
+  }
+  $('req-switch').addEventListener('click', function () {
+    dropCredential();
+    try { google.accounts.id.disableAutoSelect(); } catch (e) {}
+    showRequestState();
+  });
   function stayLine() {
     var a = $('r-in').value, c = $('r-out').value, el = $('r-stay');
     if (!a || !c) { el.className = 'stay idle'; el.textContent = 'Choose the check-in and check-out dates.'; return false; }
@@ -863,34 +968,41 @@ dl.facts dd.plain{font-weight:400}
     var err = $('r-error');
     function need(id, msg) { err.textContent = msg; $(id).focus(); }
     var sent = {
-      referredBy: $('r-ref').value.trim(), guests: parseInt($('r-count').value, 10), names: $('r-names').value.trim(),
+      referredBy: $('r-ref').value.trim(), refPhone: $('r-myphone').value.trim(), guests: parseInt($('r-count').value, 10), rooms: parseInt($('r-rooms').value, 10), names: $('r-names').value.trim(),
       phone: $('r-phone').value.trim(), checkIn: $('r-in').value, checkOut: $('r-out').value, info: $('r-info').value.trim()
     };
     if (!sent.referredBy) return need('r-ref', 'Enter your name and rank.');
+    if (sent.refPhone.replace(/\D/g, '').length < 7) return need('r-myphone', 'Enter your phone number.');
     if (!(sent.guests >= 1 && sent.guests <= 40)) return need('r-count', 'Enter the number of guests.');
+    if (!(sent.rooms >= 1 && sent.rooms <= 20)) return need('r-rooms', 'Enter the number of rooms you would like.');
     if (!sent.names) return need('r-names', 'Enter the names of the guests.');
     if (!stayLine()) return need(sent.checkIn ? 'r-out' : 'r-in', $('r-stay').textContent);
     if (!$('r-code-wrap').hidden && !$('r-code').value.trim()) return need('r-code', 'Enter the request code given to you by the mess.');
     err.textContent = '';
     var btn = $('r-send'); btn.disabled = true; btn.textContent = 'Sending…';
-    api('request', { code: $('r-code').value.trim(), request: Object.assign({ website: $('r-website').value }, sent) }).then(function (res) {
+    api('request', { code: $('r-code').value.trim(), credential: G.cred, request: Object.assign({ website: $('r-website').value }, sent) }).then(function (res) {
       btn.disabled = false; btn.textContent = 'Send request';
-      if (res.ok) { showDone(res.ref, sent); return; }
+      if (res.ok) { showDone(res.ref, sent, res.email || ''); return; }
+      if (res.error === 'signin') {
+        dropCredential(); showRequestState(); $('g-error').textContent = 'Your Google sign-in ran out. Sign in again; what you typed is kept.';
+        window.scrollTo(0, 0); return;
+      }
       if (res.error === 'code') { $('r-code-wrap').hidden = false; $('r-code').focus(); }
       err.textContent = res.error === 'auth' ? 'Booking requests are not switched on yet. Please contact the mess.' : (res.message || 'Could not send the request.');
     });
   });
-  function showDone(ref, r) {
-    $('req-done').innerHTML = '<h2>Request sent</h2><p>The mess has your request and will confirm with you. Nothing is booked until they do.</p>' +
+  function showDone(ref, r, email) {
+    $('req-done').innerHTML = '<h2>Request sent</h2><p>The mess has your request and will confirm with you' + (email ? ' by email at ' + esc(email) : '') + '. Nothing is booked until they do.</p>' +
       '<p class="ref">Reference <b>' + esc(ref) + '</b></p><dl class="facts">' +
       '<div><dt>Guests</dt><dd class="plain">' + esc(r.names) + ' (' + r.guests + ')</dd></div>' +
+      '<div><dt>Rooms</dt><dd class="plain">' + r.rooms + '</dd></div>' +
       '<div><dt>Check-in</dt><dd>' + long(r.checkIn) + '</dd></div>' +
       '<div><dt>Check-out</dt><dd>' + long(r.checkOut) + '</dd></div>' +
       '<div><dt>Requested by</dt><dd class="plain">' + esc(r.referredBy) + '</dd></div></dl>' +
       '<div class="actions" style="margin-top:18px"><button class="btn ghost" id="done-home" type="button">Back to start</button><button class="btn" id="done-more" type="button">Send another</button></div>';
     $('req-form-wrap').hidden = true; $('req-done').hidden = false; window.scrollTo(0, 0);
     function reset() {
-      ['r-names', 'r-phone', 'r-in', 'r-out', 'r-info'].forEach(function (id) { $(id).value = ''; });
+      ['r-names', 'r-rooms', 'r-phone', 'r-in', 'r-out', 'r-info'].forEach(function (id) { $(id).value = ''; });
       $('r-count').value = 1; $('req-done').hidden = true; $('req-form-wrap').hidden = false; stayLine();
     }
     $('done-more').addEventListener('click', function () { reset(); window.scrollTo(0, 0); });
@@ -900,6 +1012,7 @@ dl.facts dd.plain{font-weight:400}
   /* ---------- requests inbox (admin) ---------- */
   function reqById(id) { return S.requests.filter(function (r) { return r.id === id; })[0]; }
   function guestsText(n) { return n + (n === 1 ? ' guest' : ' guests'); }
+  function roomsText(n) { return n + (n === 1 ? ' room' : ' rooms'); }
   function updateBadge() {
     var n = S.requests.filter(function (r) { return r.status === 'Pending'; }).length, b = $('req-badge');
     b.hidden = !n; b.textContent = n > 99 ? '99+' : n;
@@ -914,7 +1027,7 @@ dl.facts dd.plain{font-weight:400}
       Accepted: 'No accepted requests yet.', Declined: 'No declined requests.' }[S.rfilter];
     $('req-box').innerHTML = '<div class="rows">' + (items.length ? items.map(function (r) {
       return '<button class="row" data-rid="' + esc(r.id) + '"><span class="mid"><b>' + esc(r.names) + '</b><small>' + short(r.checkIn) + ' to ' + short(r.checkOut) +
-        ', ' + nightsText(nights(r.checkIn, r.checkOut)) + '</small><small>From ' + esc(r.referredBy) + '</small></span><span class="tag soon">' + guestsText(r.guests) + '</span></button>';
+        ', ' + nightsText(nights(r.checkIn, r.checkOut)) + '</small><small>' + guestsText(r.guests) + ', from ' + esc(r.referredBy) + '</small></span><span class="tag soon">' + (r.rooms ? roomsText(r.rooms) : guestsText(r.guests)) + '</span></button>';
     }).join('') : '<p class="empty">' + none + '</p>') + '</div>';
   }
   $('rchips').addEventListener('click', function (e) {
@@ -930,21 +1043,31 @@ dl.facts dd.plain{font-weight:400}
     var free = S.rooms.filter(function (room) { return !clashes(room, r.checkIn, r.checkOut, null).length; });
     var linked = r.bookingIds.map(byId).filter(Boolean);
     var tag = { Pending: ['brass', 'Waiting'], Accepted: ['free', 'Accepted'], Declined: ['done', 'Declined'] }[r.status];
+    function phoneRow(label, number) {
+      return '<div><dt>' + label + '</dt><dd class="plain">' + (number ? '<button class="reveal" data-ph="' + esc(number) + '">Show number</button>' : 'Not given') + '</dd></div>';
+    }
     var html = '<div class="sheet-head"><h2>' + esc(r.names) + '</h2><button class="close" aria-label="Close">' + X + '</button></div><dl class="facts">' +
       '<div><dt>Referred by</dt><dd>' + esc(r.referredBy) + '</dd></div>' +
+      phoneRow('Their phone', r.refPhone) +
+      '<div><dt>Their email</dt><dd class="plain">' + (esc(r.email) || 'Not given') + '</dd></div>' +
       '<div><dt>Guests</dt><dd class="plain">' + r.guests + '</dd></div>' +
+      '<div><dt>Rooms wanted</dt><dd' + (r.rooms ? '>' + r.rooms : ' class="plain">Not given') + '</dd></div>' +
       '<div><dt>Check-in</dt><dd>' + long(r.checkIn) + '</dd></div>' +
       '<div><dt>Check-out</dt><dd>' + long(r.checkOut) + '</dd></div>' +
       '<div><dt>Stay</dt><dd class="plain">' + nightsText(nights(r.checkIn, r.checkOut)) + ' <span class="tag ' + tag[0] + '" style="margin-left:8px">' + tag[1] + '</span></dd></div>' +
-      '<div><dt>Phone</dt><dd class="plain" id="phone-slot">' + (r.phone ? '<button class="reveal" id="reveal">Show number</button>' : 'Not given') + '</dd></div>' +
+      phoneRow('Guest phone', r.phone) +
       '<div><dt>Other details</dt><dd class="plain">' + (esc(r.info) || 'None') + '</dd></div>' +
       '<div><dt>Received</dt><dd class="plain">' + esc(r.received) + '</dd></div></dl>';
     if (r.status === 'Accepted') {
-      html += linked.length ? '<p class="sub-head">Booked for this request</p><div class="rows">' + linked.map(function (b) {
+      html += linked.length ? '<p class="sub-head">Booked for this request' + (r.rooms ? ' (' + linked.length + ' of ' + roomsText(r.rooms) + ' wanted)' : '') + '</p><div class="rows">' + linked.map(function (b) {
         return '<button class="row" data-id="' + esc(b.id) + '"><span class="fob">' + esc(b.room) + '</span><span class="mid"><b>' + esc(b.name) + '</b><small>' +
           short(b.checkIn) + ' to ' + short(b.checkOut) + '</small></span></button>';
       }).join('') + '</div>' : '<p class="answer none">The booking made for this request has since been deleted.</p>';
-      html += '<div class="actions single"><button class="btn ghost" id="rq-accept">Book another room for this request</button></div>';
+      if (r.mailed) html += '<p class="small-note">Confirmation emailed on ' + esc(r.mailed) + '.</p>';
+      else if (!r.email) html += '<p class="small-note">This request has no email address, so a confirmation cannot be emailed from here.</p>';
+      html += '<div class="actions single">' +
+        (r.email && linked.length ? '<button class="btn" id="rq-mail">' + (r.mailed ? 'Email the confirmation again' : 'Email the confirmation') + '</button>' : '') +
+        '<button class="btn ghost" id="rq-accept">Book another room for this request</button></div>';
     } else {
       html += '<p class="answer' + (free.length ? '' : ' none') + '">' + (free.length ? 'Free for these dates: ' + esc(free.join(', ')) : 'No room is free for these exact dates.') + '</p>';
       html += r.status === 'Pending'
@@ -952,16 +1075,27 @@ dl.facts dd.plain{font-weight:400}
         : '<div class="actions"><button class="btn ghost" id="rq-restore">Move back to waiting</button><button class="btn" id="rq-accept">Accept</button></div>';
     }
     openSheet(html);
-    var rv = $('reveal');
-    if (rv) rv.addEventListener('click', function () {
-      $('phone-slot').innerHTML = '<b>' + esc(r.phone) + '</b><a class="call" href="tel:' + esc(r.phone.replace(/[^+\d]/g, '')) + '">Call</a>';
+    Array.prototype.forEach.call($('sheet').querySelectorAll('.reveal[data-ph]'), function (el) {
+      el.addEventListener('click', function () {
+        var ph = el.dataset.ph;
+        el.parentNode.innerHTML = '<b>' + esc(ph) + '</b><a class="call" href="tel:' + esc(ph.replace(/[^+\d]/g, '')) + '">Call</a>';
+      });
     });
     Array.prototype.forEach.call($('sheet').querySelectorAll('.row[data-id]'), function (el) {
       el.addEventListener('click', function () { openDetail(el.dataset.id); });
     });
     $('rq-accept').addEventListener('click', function () {
-      openForm({ requestId: r.id, name: r.names, referredBy: r.referredBy, phone: r.phone, checkIn: r.checkIn, checkOut: r.checkOut,
-        remarks: guestsText(r.guests) + (r.info ? '. ' + r.info : '') });
+      openForm({ requestId: r.id, name: r.names, referredBy: r.referredBy, phone: r.phone, email: r.email, checkIn: r.checkIn, checkOut: r.checkOut,
+        remarks: guestsText(r.guests) + (r.rooms ? ', ' + roomsText(r.rooms) + ' wanted' : '') + (r.info ? '. ' + r.info : '') + (r.refPhone ? '. Referrer phone ' + r.refPhone : '') });
+    });
+    var mail = $('rq-mail');
+    if (mail) mail.addEventListener('click', function () {
+      var label = mail.textContent; mail.disabled = true; mail.textContent = 'Preparing the email…';
+      api('draft', { requestId: r.id }).then(function (res) {
+        if (res.ok) { openMail({ requestId: r.id }, res); return; }
+        mail.disabled = false; mail.textContent = label;
+        if (res.error !== 'auth') toast(res.message || 'Could not prepare the email.', true);
+      });
     });
     function change(action, btn, doneText) {
       btn.disabled = true;
@@ -982,6 +1116,202 @@ dl.facts dd.plain{font-weight:400}
     var res = $('rq-restore');
     if (res) res.addEventListener('click', function () { change('restore', res, 'Moved back to waiting'); });
   }
+
+  /* The confirmation email: shown in full so it can be read and edited before it goes. */
+  function openMail(target, draft) {
+    var other = draft.from && draft.replyTo && draft.from.toLowerCase() !== draft.replyTo.toLowerCase();
+    openSheet('<div class="sheet-head"><h2>Email the confirmation</h2><button class="close" aria-label="Close">' + X + '</button></div>' +
+      '<dl class="facts"><div><dt>To</dt><dd>' + esc(draft.to) + '</dd></div>' +
+      '<div><dt>From</dt><dd class="plain">' + (esc(draft.from) || 'The account that owns the sheet') + '</dd></div></dl>' +
+      (other ? '<p class="small-note">Emails go out from the Google account that owns the sheet. Replies will come to ' + esc(draft.replyTo) + '.</p>' : '') +
+      '<form id="mf" novalidate><label class="f">Subject<input class="in" id="m-sub" maxlength="200" value="' + esc(draft.subject) + '"></label>' +
+      '<label class="f">Message<textarea class="in tall" id="m-body" maxlength="6000">' + esc(draft.body) + '</textarea></label>' +
+      '<div class="actions single"><button class="btn" id="m-send" type="submit">Send email</button></div></form>');
+    $('mf').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var sub = $('m-sub').value.trim(), body = $('m-body').value.trim();
+      if (!sub || !body) { toast('Write a subject and a message.', true); return; }
+      var btn = $('m-send'); btn.disabled = true; btn.textContent = 'Sending…';
+      api('sendmail', Object.assign({ subject: sub, body: body }, target)).then(function (res) {
+        if (res.ok) { closeSheet(); render(); toast('Confirmation emailed to ' + draft.to); return; }
+        btn.disabled = false; btn.textContent = 'Send email';
+        if (res.error !== 'auth') toast(res.message || 'Could not send the email.', true);
+      });
+    });
+  }
+
+  /* ---------- export the chart as a PDF (made on this device, nothing is uploaded) ---------- */
+  // Widths of the standard PDF fonts Helvetica and Helvetica-Bold for characters 32 to 126, per 1000 units.
+  var HW = [278,278,355,556,556,889,667,191,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,278,278,584,584,584,556,1015,
+    667,667,722,722,667,611,778,722,278,500,667,556,833,722,778,667,778,722,667,611,722,667,944,667,667,611,278,278,278,469,556,333,
+    556,556,500,556,556,278,556,556,222,222,500,222,833,556,556,556,556,333,500,278,556,500,722,500,500,500,334,260,334,584];
+  var HB = [278,333,474,556,556,889,722,238,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,333,333,584,584,584,611,975,
+    722,722,722,722,667,611,778,722,278,556,722,611,833,722,778,667,778,722,667,611,722,667,944,667,667,611,333,278,333,584,556,333,
+    556,611,556,611,556,333,611,611,278,278,556,278,889,611,611,611,611,389,556,333,611,556,778,556,556,500,389,280,389,584];
+  var WIN = { 0x2018: 0x91, 0x2019: 0x92, 0x201C: 0x93, 0x201D: 0x94, 0x2022: 0x95, 0x2013: 0x96, 0x2014: 0x97, 0x2026: 0x85 };
+  var WINSET = Object.keys(WIN).map(function (k) { return WIN[k]; });
+  function pdfSafe(text) {                       // the built-in PDF fonts only know Latin letters
+    var out = '', str = String(text == null ? '' : text);
+    for (var i = 0; i < str.length; i++) {
+      var c = str.charCodeAt(i);
+      if (WIN[c]) c = WIN[c]; else if (c === 9 || c === 10 || c === 13) c = 32;
+      else if (c < 32 || c > 255 || (c > 126 && c < 160 && WINSET.indexOf(c) === -1)) c = 63;      // already-converted marks pass through unchanged
+      out += String.fromCharCode(c);
+    }
+    return out;
+  }
+  function textW(str, bold, size) {
+    var table = bold ? HB : HW, w = 0;
+    for (var i = 0; i < str.length; i++) { var c = str.charCodeAt(i); w += c >= 32 && c <= 126 ? table[c - 32] : (bold ? 611 : 556); }
+    return w * size / 1000;
+  }
+  function fitLines(text, bold, size, maxW, maxLines) {
+    var words = pdfSafe(text).split(' ').filter(Boolean), lines = [], cur = '';
+    words.forEach(function (w) {
+      var both = cur ? cur + ' ' + w : w;
+      if (textW(both, bold, size) <= maxW) cur = both; else { if (cur) lines.push(cur); cur = w; }
+    });
+    if (cur) lines.push(cur);
+    var cut = lines.length > maxLines;
+    lines = lines.slice(0, maxLines);
+    return lines.map(function (ln, i) {
+      if (!(cut && i === lines.length - 1) && textW(ln, bold, size) <= maxW) return ln;
+      while (ln.length > 1 && textW(ln + '...', bold, size) > maxW) ln = ln.slice(0, -1);
+      return ln.replace(/[ ,;]+$/, '') + '...';
+    });
+  }
+  function buildChartPdf(from, days) {
+    var W = 842, H = 595, M = 28, rooms = S.rooms, t = today();
+    var roomW = 62, colW = (W - 2 * M - roomW) / 7, top = M + 46, headH = 30, x0 = M + roomW;
+    var rowH = Math.min(46, (H - M - 40 - top - headH - 2) / Math.max(1, rooms.length));
+    var total = Math.ceil(days / 7), last = addDays(from, days - 1), now = new Date();
+    var stamp = now.getDate() + ' ' + now.toLocaleDateString('en-GB', { month: 'short' }) + ' ' + now.getFullYear() + ', ' + pad(now.getHours()) + ':' + pad(now.getMinutes());
+    var title = S.title || "Avalanche Officers' Mess";
+    function n2(v) { return String(Math.round(v * 100) / 100); }
+    function rgb(hex) { return [1, 3, 5].map(function (i) { return n2(parseInt(hex.substr(i, 2), 16) / 255); }).join(' '); }
+    var streams = [];
+    for (var p = 0; p < total; p++) {
+      var o = [], start = addDays(from, p * 7), n = Math.min(7, days - p * 7), after = addDays(start, n);
+      var rect = function (x, y, w, h, hex) { o.push(rgb(hex) + ' rg ' + n2(x) + ' ' + n2(H - y - h) + ' ' + n2(w) + ' ' + n2(h) + ' re f'); };
+      var text = function (str, x, y, size, bold, hex, align) {
+        str = pdfSafe(str); var tw = textW(str, bold, size);
+        if (align === 'c') x -= tw / 2; else if (align === 'r') x -= tw;
+        o.push('BT /' + (bold ? 'F2' : 'F1') + ' ' + size + ' Tf ' + rgb(hex) + ' rg ' + n2(x) + ' ' + n2(H - y) + ' Td (' + str.replace(/[\\()]/g, '\\$&') + ') Tj ET');
+      };
+      text(title, M, M + 16, 17, true, '#13343B');
+      text('Room chart, ' + short(from) + ' to ' + short(last) + ' ' + last.slice(0, 4), M, M + 33, 10.5, false, '#5A6C72');
+      text('Page ' + (p + 1) + ' of ' + total, W - M, M + 16, 10.5, true, '#13343B', 'r');
+      text('Printed ' + stamp, W - M, M + 33, 9, false, '#5A6C72', 'r');
+      text('Room', M + 4, top + 19, 9, true, '#5A6C72');
+      var free = [], d;
+      for (d = 0; d < n; d++) {
+        var ds = addDays(start, d), wd = toDate(ds).getUTCDay(), isT = ds === t;
+        free[d] = 0;
+        rect(x0 + d * colW + 1, top, colW - 2, headH, isT ? '#C8962E' : (wd === 0 || wd === 6 ? '#1F4D56' : '#13343B'));
+        text(show(ds, { weekday: 'short' }) + ' ' + show(ds, { day: 'numeric', month: 'short' }), x0 + d * colW + colW / 2, top + 19.5, 11, true, isT ? '#2B1F04' : '#FFFFFF', 'c');
+      }
+      rooms.forEach(function (room, i) {
+        var y = top + headH + 2 + i * rowH;
+        rect(M, y + 1, roomW - 4, rowH - 2, '#FBF0D6');
+        text(room, M + (roomW - 4) / 2, y + rowH / 2 + 4, 11, true, '#5C430C', 'c');
+        var d = 0;
+        while (d < n) {
+          var ds = addDays(start, d), b = occupant(room, ds), x = x0 + d * colW;
+          if (!b) { free[d]++; rect(x + 1, y + 1, colW - 2, rowH - 2, '#DCEEDA'); d++; continue; }
+          var end = b.checkOut < after ? b.checkOut : after, span = Math.max(1, nights(ds, end)), w = span * colW - 2;
+          var fromPrev = b.checkIn < start && d === 0, toNext = b.checkOut > after;
+          rect(x + 1, y + 1, w, rowH - 2, '#B5362B');
+          o.push('q ' + n2(x + 1) + ' ' + n2(H - y - rowH + 1) + ' ' + n2(w) + ' ' + n2(rowH - 2) + ' re W n');
+          var left = x + 7 + (fromPrev ? 9 : 0), room4 = w - 12 - (fromPrev ? 9 : 0) - (toNext ? 10 : 0);
+          var lines = fitLines(b.name || 'Booked', true, 9.5, room4, rowH >= 34 ? 2 : 1);
+          var ref = b.referredBy && rowH >= 26 ? fitLines(b.referredBy, false, 7.5, room4, 1)[0] : '';
+          var block = lines.length * 11 + (ref ? 9 : 0), ty = y + (rowH - block) / 2 + 8.5;
+          lines.forEach(function (ln, k) { text(ln, left, ty + k * 11, 9.5, true, '#FFFFFF'); });
+          if (ref) text(ref, left, ty + lines.length * 11 - 1.5, 7.5, false, '#F6DFDC');
+          if (fromPrev) text('\u00AB', x + 5, y + rowH / 2 + 3.5, 11, true, '#FFFFFF');
+          if (toNext) text('\u00BB', x + w - 3, y + rowH / 2 + 3.5, 11, true, '#FFFFFF', 'r');
+          o.push('Q');
+          d += span;
+        }
+      });
+      var fy = top + headH + 2 + rooms.length * rowH + 15;
+      text('Free', M + 4, fy, 9, true, '#5A6C72');
+      for (d = 0; d < n; d++) text(String(free[d]), x0 + d * colW + colW / 2, fy, 10, true, free[d] === 0 ? '#B5362B' : '#5A6C72', 'c');
+      text('Red is booked, green is vacant. A room is shown free on its check-out day. \u00AB \u00BB mean the stay continues on another page.', M, H - M + 6, 8, false, '#5A6C72');
+      streams.push(o.join('\n'));
+    }
+    var objs = [];
+    function add(body) { objs.push(body); return objs.length; }
+    var f1 = add('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>');
+    var f2 = add('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>');
+    var pagesId = add(''), kids = [];
+    streams.forEach(function (st) {
+      var c = add('<< /Length ' + st.length + ' >>\nstream\n' + st + '\nendstream');
+      kids.push(add('<< /Type /Page /Parent ' + pagesId + ' 0 R /MediaBox [0 0 ' + W + ' ' + H + '] /Resources << /Font << /F1 ' + f1 + ' 0 R /F2 ' + f2 + ' 0 R >> >> /Contents ' + c + ' 0 R >>'));
+    });
+    objs[pagesId - 1] = '<< /Type /Pages /Kids [' + kids.map(function (k) { return k + ' 0 R'; }).join(' ') + '] /Count ' + kids.length + ' >>';
+    var cat = add('<< /Type /Catalog /Pages ' + pagesId + ' 0 R >>');
+    var info = add('<< /Title (Room chart ' + from + ' to ' + last + ') /Producer (Booking Portal) >>');
+    var out = '%PDF-1.4\n%\u00E2\u00E3\u00CF\u00D3\n', offs = [];
+    objs.forEach(function (body, i) { offs.push(out.length); out += (i + 1) + ' 0 obj\n' + body + '\nendobj\n'; });
+    var xref = out.length;
+    out += 'xref\n0 ' + (objs.length + 1) + '\n0000000000 65535 f \n' + offs.map(function (v) { return ('0000000000' + v).slice(-10) + ' 00000 n \n'; }).join('');
+    out += 'trailer\n<< /Size ' + (objs.length + 1) + ' /Root ' + cat + ' 0 R /Info ' + info + ' 0 R >>\nstartxref\n' + xref + '\n%%EOF\n';
+    var bytes = new Uint8Array(out.length);
+    for (var i = 0; i < out.length; i++) bytes[i] = out.charCodeAt(i) & 255;
+    return { blob: new Blob([bytes], { type: 'application/pdf' }), name: 'Room-chart-' + from + '-to-' + last + '.pdf', pages: total };
+  }
+
+  function openExport() {
+    var mode = '7', canShare = false;
+    try { canShare = !!(navigator.canShare && navigator.canShare({ files: [new File(['x'], 'chart.pdf', { type: 'application/pdf' })] })); } catch (e) {}
+    openSheet('<div class="sheet-head"><h2>Export the chart as PDF</h2><button class="close" aria-label="Close">' + X + '</button></div>' +
+      '<div class="chips" id="x-chips" style="margin-top:0"><button data-m="7" aria-pressed="true">Next 7 days</button><button data-m="14" aria-pressed="false">Next 14 days</button><button data-m="c" aria-pressed="false">Custom dates</button></div>' +
+      '<div class="two" id="x-custom" hidden style="margin-bottom:12px"><label class="f">From<input class="in" type="date" id="x-from" value="' + today() + '"></label>' +
+      '<label class="f">To<input class="in" type="date" id="x-to" value="' + addDays(today(), 6) + '"></label></div>' +
+      '<div class="stay idle" id="x-sum" role="status"></div>' +
+      '<p class="small-note" style="margin-top:12px">A4 landscape with 7 days on each page, starting today unless you pick dates. Guest and referrer names are shown; phone numbers and emails are left out.</p>' +
+      '<div class="actions single">' + (canShare ? '<button class="btn" id="x-share">Share on WhatsApp</button><button class="btn ghost" id="x-down">Download PDF</button>'
+        : '<button class="btn" id="x-down">Download PDF</button>') + '</div>' +
+      (canShare ? '<p class="small-note" style="margin-top:12px">Share opens your phone\u2019s share menu. Choose WhatsApp there, then the chat.</p>' : ''));
+    function range() {
+      var el = $('x-sum'), from = today(), days = +mode;
+      if (mode === 'c') {
+        from = $('x-from').value; var to = $('x-to').value;
+        if (!from || !to) { el.className = 'stay idle'; el.textContent = 'Choose both dates.'; return null; }
+        if (to < from) { el.className = 'stay bad'; el.textContent = 'The To date must be on or after the From date.'; return null; }
+        days = nights(from, to) + 1;
+        if (days > 62) { el.className = 'stay bad'; el.textContent = 'Choose 62 days or fewer.'; return null; }
+      }
+      var pages = Math.ceil(days / 7);
+      el.className = 'stay'; el.textContent = short(from) + ' to ' + short(addDays(from, days - 1)) + ': ' + days + (days === 1 ? ' day' : ' days') + ' on ' + pages + (pages === 1 ? ' page.' : ' pages.');
+      return { from: from, days: days };
+    }
+    $('x-chips').addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      mode = b.dataset.m;
+      Array.prototype.forEach.call(this.children, function (c) { c.setAttribute('aria-pressed', c === b ? 'true' : 'false'); });
+      $('x-custom').hidden = mode !== 'c'; range();
+    });
+    $('x-from').addEventListener('change', function () { if (this.value && $('x-to').value < this.value) $('x-to').value = addDays(this.value, 6); range(); });
+    $('x-to').addEventListener('change', range);
+    range();
+    $('x-down').addEventListener('click', function () {
+      var r = range(); if (!r) return;
+      var pdf = buildChartPdf(r.from, r.days), url = URL.createObjectURL(pdf.blob), a = document.createElement('a');
+      a.href = url; a.download = pdf.name; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
+      toast('PDF downloaded');
+    });
+    if (canShare) $('x-share').addEventListener('click', function () {
+      var r = range(); if (!r) return;
+      var pdf = buildChartPdf(r.from, r.days);
+      navigator.share({ files: [new File([pdf.blob], pdf.name, { type: 'application/pdf' })], title: 'Room chart' }).catch(function (err) {
+        if (!err || err.name !== 'AbortError') toast('Sharing did not work here. Use Download instead.', true);
+      });
+    });
+  }
+  $('export').addEventListener('click', openExport);
 
   /* ---------- toast ---------- */
   var toastTimer;
