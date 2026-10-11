@@ -251,6 +251,7 @@ fieldset.pick legend{padding:0;margin-bottom:6px;font-size:14px;font-weight:600;
 .agree{display:flex;gap:12px;align-items:flex-start;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:15.5px;line-height:1.45}
 .agree input{width:22px;height:22px;flex:none;margin:1px 0 0;accent-color:var(--accent)}
 .ph{flex:none}
+.ver{margin-top:6px;font-size:12.5px;color:var(--mute);text-align:center}
 
 /* ---------- requests inbox ---------- */
 .badge{position:absolute;top:5px;left:calc(50% + 7px);min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--booked);color:#fff;font-size:11px;font-weight:700;line-height:18px;text-align:center}
@@ -327,6 +328,8 @@ fieldset.pick legend{padding:0;margin-bottom:6px;font-size:14px;font-weight:600;
         <div class="error" id="login-error" role="alert"></div>
         <button class="btn" id="login-btn" type="submit">Sign in</button>
       </form>
+      <div class="notice" id="old-script" hidden></div>
+      <p class="ver" id="ver">Website version 10</p>
     </div>
   </div>
 </div>
@@ -484,6 +487,7 @@ fieldset.pick legend{padding:0;margin-bottom:6px;font-size:14px;font-weight:600;
 (function () {
   'use strict';
 
+  var WEBSITE_VERSION = 10, NEEDS_SCRIPT = 9;          // shown on the front page so it is easy to see what is live
   var API = (window.BOOKING_API_URL || '').trim();
   var CONNECTED = /^https:\/\/|^\/|^http:\/\/localhost/.test(API);
   var KEY = 'aom-booking-token';
@@ -534,6 +538,7 @@ fieldset.pick legend{padding:0;margin-bottom:6px;font-size:14px;font-weight:600;
       .then(function (res) {
         if (--S.pending === 0) $('refresh').classList.remove('busy');
         if (res.error === 'auth' && S.token) { signOut('Please sign in again.'); }
+        if (res.error === 'bad_request') res.message = 'The Google script is older than this page. In Apps Script use Deploy > Manage deployments > pencil > New version.';
         if (res.rooms) S.rooms = res.rooms;
         if (typeof res.maxNights === 'number') S.maxNights = res.maxNights;
         if (res.bookings) { S.bookings = res.bookings; S.loadedAt = Date.now(); }
@@ -1039,12 +1044,14 @@ fieldset.pick legend{padding:0;margin-bottom:6px;font-size:14px;font-weight:600;
   /* ---------- booking request form (open to everyone) ---------- */
   var G = { asked: false, clientId: '', cred: '', email: '', name: '', maxNights: 0 };
   var GKEY = 'aom-google';
+  var INFO = null;
+  function getInfo() { return INFO || (INFO = api('info')); }      // asked once: versions, sign-in and the night limit
   function openRequestScreen() {
     $('r-in').min = today();
     stayLine();
     if (G.asked) { showRequestState(); return; }
     G.asked = true;
-    api('info').then(function (res) {
+    getInfo().then(function (res) {
       if (res.ok && res.codeNeeded) $('r-code-wrap').hidden = false;
       if (res.ok && res.maxNights) { G.maxNights = res.maxNights; stayLine(); }
       if (res.ok && res.clientId) {
@@ -1551,6 +1558,14 @@ fieldset.pick legend{padding:0;margin-bottom:6px;font-size:14px;font-weight:600;
   } else {
     S.token = readToken();
     route();
+    getInfo().then(function (res) {
+      var v = res.ok ? (res.version || 0) : 0;
+      $('ver').textContent = 'Website version ' + WEBSITE_VERSION + '. Google script version ' + (res.ok ? (v || 'not known') : 'not reachable') + '.';
+      if (res.error !== 'network' && v < NEEDS_SCRIPT) {
+        $('old-script').textContent = 'The Google script is out of date (this page needs version ' + NEEDS_SCRIPT + '). In Apps Script: paste the new code, Save, then Deploy > Manage deployments > pencil > New version > Deploy.';
+        $('old-script').hidden = false;
+      }
+    });
     if (S.token) {
       $('choose').hidden = true; $('opening').hidden = false;
       api('list').then(function (res) {
