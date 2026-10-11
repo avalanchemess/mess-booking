@@ -617,6 +617,9 @@ button.row:active{background:transparent;box-shadow:var(--in)}
 #toast .tick{stroke-dashoffset:0;animation:draw .35s ease-out .18s backwards}
 @keyframes draw{from{stroke-dashoffset:22}}
 .ridge{margin-bottom:-1px}
+/* chart blocks are plain rectangles: vacant squares, booking bars, date boxes and the today outline */
+:root{--cell-r:0px;--bar-r:0px;--band-r:0px}
+@keyframes pour{from{clip-path:inset(0 100% 0 0);opacity:.3}to{clip-path:inset(0 0 0 0);opacity:1}}
 </style>
 </head>
 <body>
