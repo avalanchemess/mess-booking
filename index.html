@@ -221,6 +221,15 @@ dl.facts dd.plain{font-weight:400}
 .small-note{font-size:14px;color:var(--mute);margin:0 2px 14px}
 textarea.in.tall{min-height:280px;font-size:15.5px;line-height:1.45}
 
+/* ---------- several rooms in one booking ---------- */
+#f-rooms{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+.room-entry{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+.room-entry.multi{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:10px 14px 14px}
+.re-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.re-top b{font-size:14px;color:var(--mute)}
+.re-x{width:38px;height:38px;border:0;border-radius:9px;background:var(--glacier);display:grid;place-items:center;flex:none}
+.re-x svg{width:17px;height:17px}
+
 /* ---------- application form ---------- */
 .login-top .org-line{margin:0 0 12px;font-size:14.5px;font-weight:600;line-height:1.35;color:#BFD3D8}
 .form-top{margin:0 2px 8px}
@@ -478,7 +487,7 @@ fieldset.pick legend{padding:0;margin-bottom:6px;font-size:14px;font-weight:600;
   var API = (window.BOOKING_API_URL || '').trim();
   var CONNECTED = /^https:\/\/|^\/|^http:\/\/localhost/.test(API);
   var KEY = 'aom-booking-token';
-  var S = { token: '', inApp: false, rooms: [], bookings: [], requests: [], view: 'chart', y: 0, m: 0, filter: 'now', rfilter: 'Pending', q: '', loadedAt: 0, pending: 0 };
+  var S = { maxNights: 0, token: '', inApp: false, rooms: [], bookings: [], requests: [], view: 'chart', y: 0, m: 0, filter: 'now', rfilter: 'Pending', q: '', loadedAt: 0, pending: 0 };
 
   var $ = function (id) { return document.getElementById(id); };
   var X = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>';
@@ -526,6 +535,7 @@ fieldset.pick legend{padding:0;margin-bottom:6px;font-size:14px;font-weight:600;
         if (--S.pending === 0) $('refresh').classList.remove('busy');
         if (res.error === 'auth' && S.token) { signOut('Please sign in again.'); }
         if (res.rooms) S.rooms = res.rooms;
+        if (typeof res.maxNights === 'number') S.maxNights = res.maxNights;
         if (res.bookings) { S.bookings = res.bookings; S.loadedAt = Date.now(); }
         if (res.requests) { S.requests = res.requests; updateBadge(); }
         return res;
@@ -818,7 +828,7 @@ fieldset.pick legend{padding:0;margin-bottom:6px;font-size:14px;font-weight:600;
       '<div><dt>Phone</dt><dd class="plain" id="phone-slot">' + (b.phone ? '<button class="reveal" id="reveal">Show number</button>' : 'Not given') + '</dd></div>' +
       '<div><dt>Email</dt><dd class="plain">' + (esc(b.email) || 'Not given') + '</dd></div>' +
       '<div><dt>Remarks</dt><dd class="plain">' + (esc(b.remarks) || 'None') + '</dd></div>' +
-      '</dl>' + (b.mailed ? '<p class="small-note">Confirmation emailed on ' + esc(b.mailed) + '.</p>' : '') +
+      '</dl>' + (b.mailed ? '<p class="small-note">Last emailed on ' + esc(b.mailed) + '.</p>' : '') +
       '<div class="actions single" style="margin-bottom:12px">' + (b.email
         ? '<button class="btn" id="bk-mail">' + (b.mailed ? 'Email the confirmation again' : 'Email the confirmation') + '</button>'
         : '<button class="btn ghost" id="bk-addmail">Add an email to send a confirmation</button>') + '</div>' +
@@ -841,31 +851,63 @@ fieldset.pick legend{padding:0;margin-bottom:6px;font-size:14px;font-weight:600;
     $('edit').addEventListener('click', function () { openForm(b); });
     var del = $('del'), timer;
     del.addEventListener('click', function () {
+      if (b.email) {                                        // with an email on file: offer to tell the guest before deleting
+        del.disabled = true; del.textContent = 'One moment…';
+        api('draft', { bookingId: b.id, kind: 'cancel' }).then(function (res) {
+          if (res.ok) { openCancel(b, res); return; }
+          del.disabled = false; del.textContent = 'Delete booking';
+          if (res.error !== 'auth') toast(res.message || 'Could not prepare the cancellation.', true);
+        });
+        return;
+      }
       if (!del.classList.contains('armed')) {
         del.classList.add('armed'); del.textContent = 'Tap again to delete';
         timer = setTimeout(function () { del.classList.remove('armed'); del.textContent = 'Delete booking'; }, 4000);
         return;
       }
       clearTimeout(timer); del.disabled = true; del.textContent = 'Deleting…';
-      api('delete', { id: b.id }).then(function (res) {
+      api('cancel', { bookingId: b.id, sendEmail: false }).then(function (res) {
         if (res.ok) { closeSheet(); render(); toast('Booking deleted'); }
         else if (res.error !== 'auth') { del.disabled = false; del.classList.remove('armed'); del.textContent = 'Delete booking'; toast(res.message || 'Could not delete.', true); }
       });
     });
   }
 
+  /* Deleting a booking that has an email address: the cancellation email is shown first, to send or skip. */
+  function openCancel(b, draft) {
+    openSheet('<div class="sheet-head"><span class="fob">' + esc(b.room) + '</span><h2>Delete this booking</h2><button class="close" aria-label="Close">' + X + '</button></div>' +
+      '<p class="small-note">' + esc(b.name) + ', ' + short(b.checkIn) + ' to ' + short(b.checkOut) + '. You can email the cancellation below, or delete without emailing.</p>' +
+      '<dl class="facts"><div><dt>To</dt><dd>' + esc(draft.to) + '</dd></div></dl>' +
+      '<form id="cf" novalidate><label class="f">Subject<input class="in" id="c-sub" maxlength="200" value="' + esc(draft.subject) + '"></label>' +
+      '<label class="f">Message<textarea class="in tall" id="c-body" maxlength="6000">' + esc(draft.body) + '</textarea></label>' +
+      '<div class="actions single"><button class="btn danger armed" id="c-send" type="submit">Delete and email the cancellation</button>' +
+      '<button class="btn danger" id="c-only" type="button">Delete without emailing</button></div></form>');
+    function go(withEmail) {
+      var sub = $('c-sub').value.trim(), body = $('c-body').value.trim();
+      if (withEmail && (!sub || !body)) { toast('Write a subject and a message.', true); return; }
+      var send = $('c-send'), only = $('c-only'); send.disabled = true; only.disabled = true; (withEmail ? send : only).textContent = 'Deleting…';
+      api('cancel', { bookingId: b.id, sendEmail: withEmail, subject: sub, body: body }).then(function (res) {
+        if (res.ok) { closeSheet(); render(); toast(res.emailed ? 'Booking deleted and ' + res.to + ' emailed' : 'Booking deleted'); return; }
+        send.disabled = false; only.disabled = false; send.textContent = 'Delete and email the cancellation'; only.textContent = 'Delete without emailing';
+        if (res.error !== 'auth') toast(res.message || 'Could not delete.', true);
+      });
+    }
+    $('cf').addEventListener('submit', function (e) { e.preventDefault(); go(true); });
+    $('c-only').addEventListener('click', function () { go(false); });
+  }
+
   function openForm(b) {
     b = b || {};
     var isEdit = !!b.id;
     var cin = b.checkIn || today(), cout = b.checkOut || addDays(cin, 1);
-    var options = '<option value="">Choose a room</option>' + S.rooms.map(function (r) {
-      return '<option value="' + esc(r) + '"' + (r === b.room ? ' selected' : '') + '>' + esc(r) + '</option>';
-    }).join('');
+    var keepNights = isEdit ? nights(b.checkIn, b.checkOut) : 0;        // an older, longer booking may keep its length
+    var maxEntries = Math.min(6, S.rooms.length);
+    var entries = [];
+    for (var i = 0; i < (isEdit ? 1 : Math.max(1, Math.min(maxEntries, b.rooms || 1))); i++) entries.push({ room: i === 0 ? (b.room || '') : '', name: b.name || '' });
     var saveLabel = b.requestId ? 'Accept and book' : 'Save booking';
     openSheet('<div class="sheet-head"><h2>' + (isEdit ? 'Change booking' : (b.requestId ? 'Accept request' : 'New booking')) + '</h2><button class="close" aria-label="Close">' + X + '</button></div>' +
-      '<form id="bf" novalidate>' +
-      '<label class="f">Room<select class="in" id="f-room" required>' + options + '</select></label>' +
-      '<label class="f">Occupant names<textarea class="in" id="f-name" rows="2" maxlength="200" required>' + esc(b.name) + '</textarea></label>' +
+      '<form id="bf" novalidate><div id="f-rooms"></div>' +
+      (isEdit ? '' : '<button class="btn ghost" id="f-addroom" type="button">Add another room</button>') +
       '<div class="two"><label class="f">Check-in<input class="in" type="date" id="f-in" value="' + cin + '" required></label>' +
       '<label class="f">Check-out<input class="in" type="date" id="f-out" value="' + cout + '" required></label></div>' +
       '<div class="stay idle" id="f-stay" role="status"></div>' +
@@ -875,56 +917,114 @@ fieldset.pick legend{padding:0;margin-bottom:6px;font-size:14px;font-weight:600;
       '<label class="f"><span>Remarks <small>(optional)</small></span><textarea class="in" id="f-rem" rows="2" maxlength="500">' + esc(b.remarks) + '</textarea></label>' +
       '<div class="actions single"><button class="btn" id="f-save" type="submit">' + saveLabel + '</button></div></form>');
 
+    function cards() { return $('f-rooms').querySelectorAll('.room-entry'); }
+    function readEntries() {
+      Array.prototype.forEach.call(cards(), function (el, i) {
+        if (entries[i]) { entries[i].room = el.querySelector('.f-room').value; entries[i].name = el.querySelector('.f-name').value; }
+      });
+    }
+    function drawEntries() {
+      var many = entries.length > 1;
+      $('f-rooms').innerHTML = entries.map(function (en, i) {
+        var opts = '<option value="">Choose a room</option>' + S.rooms.map(function (r) {
+          return '<option value="' + esc(r) + '"' + (r === en.room ? ' selected' : '') + '>' + esc(r) + '</option>';
+        }).join('');
+        return '<div class="room-entry' + (many ? ' multi' : '') + '">' +
+          (many ? '<div class="re-top"><b>Room ' + (i + 1) + ' of ' + entries.length + '</b><button class="re-x" type="button" data-i="' + i + '" aria-label="Remove this room">' + X + '</button></div>' : '') +
+          '<label class="f">Room<select class="in f-room"' + (i === 0 ? ' id="f-room"' : '') + '>' + opts + '</select></label>' +
+          '<label class="f">Occupant names<textarea class="in f-name"' + (i === 0 ? ' id="f-name"' : '') + ' rows="2" maxlength="300">' + esc(en.name) + '</textarea></label></div>';
+      }).join('');
+      if ($('f-addroom')) $('f-addroom').hidden = entries.length >= maxEntries;
+      check();
+    }
+    function listText(a) { return a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1]; }
+
     function check() {
-      var room = $('f-room').value, a = $('f-in').value, c = $('f-out').value, el = $('f-stay');
+      var a = $('f-in').value, c = $('f-out').value, el = $('f-stay');
+      var selects = $('f-rooms').querySelectorAll('.f-room'), chosen = Array.prototype.map.call(selects, function (x) { return x.value; });
       if (!a || !c) { el.className = 'stay idle'; el.textContent = 'Choose both dates.'; return false; }
       if (c <= a) { el.className = 'stay bad'; el.textContent = 'Check-out must be after check-in.'; return false; }
-      var n = nightsText(nights(a, c)), freeNow = [];
-      Array.prototype.forEach.call($('f-room').options, function (o) {
-        if (!o.value) return;
-        var taken = clashes(o.value, a, c, b.id || null).length > 0;
-        o.textContent = o.value + (taken ? ' (taken)' : '');
-        if (!taken) freeNow.push(o.value);
+      var nn = nights(a, c), n = nightsText(nn);
+      if (S.maxNights && nn > S.maxNights && nn > keepNights) {
+        el.className = 'stay bad'; el.textContent = 'A booking can be for ' + nightsText(S.maxNights) + ' at most. This is ' + n + '.'; return false;
+      }
+      var freeNow = S.rooms.filter(function (room) { return !clashes(room, a, c, b.id || null).length; });
+      Array.prototype.forEach.call(selects, function (sel, i) {
+        Array.prototype.forEach.call(sel.options, function (o) {
+          if (!o.value) return;
+          var taken = freeNow.indexOf(o.value) === -1, elsewhere = !taken && chosen.some(function (v, k) { return k !== i && v === o.value; });
+          o.textContent = o.value + (taken ? ' (taken)' : (elsewhere ? ' (already chosen)' : ''));
+        });
       });
-      if (!room) {
+      var picked = chosen.filter(Boolean);
+      if (!picked.length) {
         el.className = 'stay idle';
         el.textContent = n + '. ' + (freeNow.length ? 'Free rooms: ' + freeNow.join(', ') + '.' : 'No room is free for these dates.');
         return false;
       }
-      var hit = clashes(room, a, c, b.id || null);
-      if (hit.length) {
-        el.className = 'stay bad';
-        el.textContent = room + ' is taken by ' + (hit[0].name || 'another guest') + ', ' + short(hit[0].checkIn) + ' to ' + short(hit[0].checkOut) + '.';
+      for (var i = 0; i < picked.length; i++) {
+        var hit = clashes(picked[i], a, c, b.id || null);
+        if (hit.length) {
+          el.className = 'stay bad';
+          el.textContent = picked[i] + ' is taken by ' + (hit[0].name || 'another guest') + ', ' + short(hit[0].checkIn) + ' to ' + short(hit[0].checkOut) + '.';
+          return false;
+        }
+        if (picked.indexOf(picked[i]) !== i) { el.className = 'stay bad'; el.textContent = picked[i] + ' is chosen twice.'; return false; }
+      }
+      if (picked.length < chosen.length) {
+        el.className = 'stay idle'; el.textContent = n + '. Choose a room for each entry, or remove the one you do not need. Still free: ' +
+          (freeNow.filter(function (r) { return picked.indexOf(r) === -1; }).join(', ') || 'none') + '.';
         return false;
       }
-      el.className = 'stay'; el.textContent = n + '. ' + room + ' is free for these dates.';
+      el.className = 'stay'; el.textContent = n + '. ' + listText(picked) + (picked.length === 1 ? ' is' : ' are') + ' free for these dates.';
       return true;
     }
+    $('f-rooms').addEventListener('change', function (e) { if (e.target.classList.contains('f-room')) check(); });
+    $('f-rooms').addEventListener('click', function (e) {
+      var x = e.target.closest('.re-x'); if (!x) return;
+      readEntries(); entries.splice(+x.dataset.i, 1); drawEntries();
+    });
+    if ($('f-addroom')) $('f-addroom').addEventListener('click', function () {
+      readEntries(); entries.push({ room: '', name: entries[0].name }); drawEntries();
+      var all = $('f-rooms').querySelectorAll('.f-room'); all[all.length - 1].focus();
+    });
     $('f-in').addEventListener('change', function () {
       var o = $('f-out'); if (this.value && (!o.value || o.value <= this.value)) o.value = addDays(this.value, 1); check();
     });
     $('f-out').addEventListener('change', check);
-    $('f-room').addEventListener('change', check);
-    check();
+    drawEntries();
 
     $('bf').addEventListener('submit', function (e) {
       e.preventDefault();
-      var name = $('f-name').value.trim();
-      if (!$('f-room').value) { toast('Choose a room.', true); $('f-room').focus(); return; }
-      if (!name) { toast('Enter the occupant name.', true); $('f-name').focus(); return; }
+      readEntries();
+      var els = cards();
+      for (var i = 0; i < entries.length; i++) {
+        if (!entries[i].room) { toast(entries.length > 1 ? 'Choose a room for each entry.' : 'Choose a room.', true); els[i].querySelector('.f-room').focus(); return; }
+        if (!entries[i].name.trim()) { toast('Enter the occupant name.', true); els[i].querySelector('.f-name').focus(); return; }
+      }
       if (!check()) { $('f-stay').scrollIntoView({ block: 'center' }); return; }
       var mailTo = $('f-email').value.trim();
       if (mailTo && !/^[^\s@<>,;]+@[^\s@<>,;]+\.[^\s@<>,;]+$/.test(mailTo)) { toast('That email address does not look right.', true); $('f-email').focus(); return; }
+      var shared = { checkIn: $('f-in').value, checkOut: $('f-out').value, referredBy: $('f-ref').value.trim(), phone: $('f-phone').value.trim(), remarks: $('f-rem').value.trim(), email: mailTo };
+      var list = entries.map(function (en) { return Object.assign({ id: '', room: en.room, name: en.name.trim() }, shared); });
+      var changed = isEdit && (b.room !== list[0].room || b.checkIn !== shared.checkIn || b.checkOut !== shared.checkOut || (b.name || '') !== list[0].name);
       var save = $('f-save'); save.disabled = true; save.textContent = 'Saving…';
-      api(b.requestId ? 'accept' : 'save', { requestId: b.requestId || '', booking: {
-        id: b.id || '', room: $('f-room').value, name: name, checkIn: $('f-in').value, checkOut: $('f-out').value,
-        referredBy: $('f-ref').value.trim(), phone: $('f-phone').value.trim(), remarks: $('f-rem').value.trim(), email: mailTo
-      } }).then(function (res) {
+      var call = isEdit ? api('save', { booking: Object.assign(list[0], { id: b.id }) })
+        : api(b.requestId ? 'accept' : 'save', { requestId: b.requestId || '', bookings: list });
+      call.then(function (res) {
         if (res.ok) {
-          var p = $('f-in').value.split('-'); if (S.view === 'chart') { S.y = +p[0]; S.m = +p[1]; }
-          closeSheet(); render(); toast(b.requestId ? 'Request accepted and booked' : 'Booking saved');
-          if (b.requestId && (reqById(b.requestId) || {}).email) openReq(b.requestId);
-          else if (!b.requestId && mailTo && !(byId(res.id) || {}).mailed) openDetail(res.id);       // straight to the "Email the confirmation" button
+          var p = shared.checkIn.split('-'); if (S.view === 'chart') { S.y = +p[0]; S.m = +p[1]; }
+          var ids = res.ids || [res.id], many = ids.length > 1;
+          closeSheet(); render();
+          toast(b.requestId ? 'Request accepted and ' + (many ? ids.length + ' rooms booked' : 'booked') : (many ? ids.length + ' rooms booked' : 'Booking saved'));
+          if (b.requestId) { if ((reqById(b.requestId) || {}).email) openReq(b.requestId); }       // its "Email the confirmation" covers every room
+          else if (isEdit && changed && mailTo) {                                                    // tell the guest what changed
+            api('draft', { bookingId: b.id, kind: 'change' }).then(function (d) { if (d.ok) openMail({ bookingId: b.id }, d); });
+          }
+          else if (many && mailTo) {                                                                 // one confirmation for all the rooms
+            api('draft', { bookingIds: ids }).then(function (d) { if (d.ok) openMail({ bookingIds: ids }, d); });
+          }
+          else if (mailTo && !(byId(ids[0]) || {}).mailed) openDetail(ids[0]);
           return;
         }
         if (res.error === 'auth') return;
@@ -937,7 +1037,7 @@ fieldset.pick legend{padding:0;margin-bottom:6px;font-size:14px;font-weight:600;
   $('new').addEventListener('click', function () { openForm({}); });
 
   /* ---------- booking request form (open to everyone) ---------- */
-  var G = { asked: false, clientId: '', cred: '', email: '', name: '' };
+  var G = { asked: false, clientId: '', cred: '', email: '', name: '', maxNights: 0 };
   var GKEY = 'aom-google';
   function openRequestScreen() {
     $('r-in').min = today();
@@ -946,6 +1046,7 @@ fieldset.pick legend{padding:0;margin-bottom:6px;font-size:14px;font-weight:600;
     G.asked = true;
     api('info').then(function (res) {
       if (res.ok && res.codeNeeded) $('r-code-wrap').hidden = false;
+      if (res.ok && res.maxNights) { G.maxNights = res.maxNights; stayLine(); }
       if (res.ok && res.clientId) {
         G.clientId = res.clientId;
         try {
@@ -1008,13 +1109,18 @@ fieldset.pick legend{padding:0;margin-bottom:6px;font-size:14px;font-weight:600;
   });
   function stayLine() {
     var a = $('r-in').value, c = $('r-out').value, el = $('r-stay');
-    if (!a || !c) { el.className = 'stay idle'; el.textContent = 'Choose the check-in and check-out dates.'; return false; }
+    if (!a || !c) { el.className = 'stay idle'; el.textContent = 'Choose the check-in and check-out dates.' + (G.maxNights ? ' A stay can be up to ' + nightsText(G.maxNights) + '.' : ''); return false; }
     if (c <= a) { el.className = 'stay bad'; el.textContent = 'Check-out must be after check-in.'; return false; }
+    if (G.maxNights && nights(a, c) > G.maxNights) {
+      el.className = 'stay bad'; el.textContent = 'A stay can be for ' + nightsText(G.maxNights) + ' at most. This is ' + nightsText(nights(a, c)) + '.'; return false;
+    }
     el.className = 'stay'; el.textContent = 'Duration: ' + nightsText(nights(a, c)) + ', ' + short(a) + ' to ' + short(c) + '.';
     return true;
   }
   $('r-in').addEventListener('change', function () {
-    var o = $('r-out'); if (this.value && (!o.value || o.value <= this.value)) o.value = addDays(this.value, 1); stayLine();
+    var o = $('r-out'); if (this.value && (!o.value || o.value <= this.value)) o.value = addDays(this.value, 1);
+    if (this.value && G.maxNights) { o.min = addDays(this.value, 1); o.max = addDays(this.value, G.maxNights); } else { o.removeAttribute('min'); o.removeAttribute('max'); }
+    stayLine();
   });
   $('r-out').addEventListener('change', stayLine);
   $('req-back').addEventListener('click', function () {
@@ -1199,7 +1305,7 @@ fieldset.pick legend{padding:0;margin-bottom:6px;font-size:14px;font-weight:600;
       el.addEventListener('click', function () { openDetail(el.dataset.id); });
     });
     $('rq-accept').addEventListener('click', function () {
-      openForm({ requestId: r.id, name: r.names, referredBy: /Self/.test(r.accFor || '') ? '' : r.referredBy, phone: r.phone || r.refPhone, email: r.email,
+      openForm({ requestId: r.id, rooms: Math.max(1, (r.rooms || 1) - linked.length), name: r.names, referredBy: /Self/.test(r.accFor || '') ? '' : r.referredBy, phone: r.phone || r.refPhone, email: r.email,
         checkIn: r.checkIn, checkOut: r.checkOut,
         remarks: guestsText(r.guests) + (r.rooms ? ', ' + roomsText(r.rooms) + ' wanted' : '') + (r.purpose ? '. ' + r.purpose + ' visit' : '') +
           (r.designation ? '. Applicant ' + r.referredBy + ', ' + r.designation + (r.lab ? ', ' + r.lab : '') : '') + (r.info ? '. ' + r.info : '') + (r.refPhone ? '. Mobile ' + r.refPhone : '') });
@@ -1233,10 +1339,12 @@ fieldset.pick legend{padding:0;margin-bottom:6px;font-size:14px;font-weight:600;
     if (res) res.addEventListener('click', function () { change('restore', res, 'Moved back to waiting'); });
   }
 
-  /* The confirmation email: shown in full so it can be read and edited before it goes. */
+  /* An email to the guest (confirmation or change): shown in full so it can be read and edited before it goes. */
   function openMail(target, draft) {
+    var change = draft.kind === 'change';
     var other = draft.from && draft.replyTo && draft.from.toLowerCase() !== draft.replyTo.toLowerCase();
-    openSheet('<div class="sheet-head"><h2>Email the confirmation</h2><button class="close" aria-label="Close">' + X + '</button></div>' +
+    openSheet('<div class="sheet-head"><h2>' + (change ? 'Email the change' : 'Email the confirmation') + '</h2><button class="close" aria-label="Close">' + X + '</button></div>' +
+      (change ? '<p class="small-note">The change is saved. Send this to tell the guest, or close to skip.</p>' : '') +
       '<dl class="facts"><div><dt>To</dt><dd>' + esc(draft.to) + '</dd></div>' +
       '<div><dt>From</dt><dd class="plain">' + (esc(draft.from) || 'The account that owns the sheet') + '</dd></div></dl>' +
       (other ? '<p class="small-note">Emails go out from the Google account that owns the sheet. Replies will come to ' + esc(draft.replyTo) + '.</p>' : '') +
@@ -1249,7 +1357,7 @@ fieldset.pick legend{padding:0;margin-bottom:6px;font-size:14px;font-weight:600;
       if (!sub || !body) { toast('Write a subject and a message.', true); return; }
       var btn = $('m-send'); btn.disabled = true; btn.textContent = 'Sending…';
       api('sendmail', Object.assign({ subject: sub, body: body }, target)).then(function (res) {
-        if (res.ok) { closeSheet(); render(); toast('Confirmation emailed to ' + draft.to); return; }
+        if (res.ok) { closeSheet(); render(); toast((change ? 'Change emailed to ' : 'Confirmation emailed to ') + draft.to); return; }
         btn.disabled = false; btn.textContent = 'Send email';
         if (res.error !== 'auth') toast(res.message || 'Could not send the email.', true);
       });
